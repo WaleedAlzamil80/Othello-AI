@@ -44,12 +44,16 @@ class OthelloGame:
         return valid_moves
 
     def make_move(self, row, col):
+        # print("Current State")
+        # print(self.board)
+        # print("Action to take", self.current_player)
+        # print(row, col)
         if not self.is_valid_move(row, col):
-            print("shiiiiiittttt!!!::: ", row, col)
-            raise ValueError("Invalid move")
+            raise ValueError('Invalid move')
         self.board[row, col] = self.current_player
         self._flip_pieces(row, col)
         self.current_player *= -1
+
 
     def _flip_pieces(self, row, col):
         for dr in [-1, 0, 1]:
@@ -66,10 +70,32 @@ class OthelloGame:
             self.board[r, c] = self.current_player
             r, c = r + dr, c + dc
 
-    def print_board(self):
-        for row in self.board:
-            print(" ".join(map(str, row)))
+    def play_two_players(self):
+        while True:
+            print("Current board:")
+            print(self.board)
+            ones = np.sum(self.board == 1)
+            mones = np.sum(self.board == -1)
+            print("Player 1: ", ones)
+            print("Player -1: ", mones)
+            print("Player", self.current_player, "to move.")
+            valid_moves = self.get_valid_moves()
+            if not valid_moves:
+                print("No valid moves. Skipping turn.")
+                self.current_player *= -1
+                continue
 
+            print("Valid moves:", valid_moves)
+            try:
+                row = int(input("Enter row: "))
+                col = int(input("Enter column: "))
+                if (row, col) in valid_moves:
+                    self.make_move(row, col)
+                else:
+                    print("Invalid move. Try again.")
+            except:
+                print("Enter a valid square.")
+            
     def evaluate_heuristic(self):
         def coin_parity():
             max_player_coins = np.sum(self.board == self.current_player)
@@ -96,15 +122,17 @@ class OthelloGame:
 
     def minimax_alpha_beta(self, depth, alpha, beta, maximizing_player):
         if depth == 0:
+            print(self.evaluate_heuristic())
             return self.evaluate_heuristic()
 
+        previous_board = self.board.copy()
         valid_moves = self.get_valid_moves()
         if maximizing_player:
             max_eval = float('-inf')
             for move in valid_moves:
                 self.make_move(*move)
                 eval = self.minimax_alpha_beta(depth - 1, alpha, beta, False)
-                self.board[move] = 0
+                self.board = previous_board
                 max_eval = max(max_eval, eval)
                 alpha = max(alpha, eval)
                 if beta <= alpha:
@@ -115,7 +143,7 @@ class OthelloGame:
             for move in valid_moves:
                 self.make_move(*move)
                 eval = self.minimax_alpha_beta(depth - 1, alpha, beta, True)
-                self.board[move] = 0
+                self.board = previous_board
                 min_eval = min(min_eval, eval)
                 beta = min(beta, eval)
                 if beta <= alpha:
@@ -124,15 +152,18 @@ class OthelloGame:
 
     def minimax(self, depth, maximizing_player):
         if depth == 0:
+            print(self.evaluate_heuristic())
             return self.evaluate_heuristic()
 
+        previous_board = self.board.copy()
         valid_moves = self.get_valid_moves()
+        print(self.current_player, valid_moves)
         if maximizing_player:
             max_eval = float('-inf')
             for move in valid_moves:
                 self.make_move(*move)
                 eval = self.minimax(depth - 1, False)
-                self.board[move] = 0
+                self.board = previous_board
                 max_eval = max(max_eval, eval)
             return max_eval
         else:
@@ -140,7 +171,7 @@ class OthelloGame:
             for move in valid_moves:
                 self.make_move(*move)
                 eval = self.minimax(depth - 1, True)
-                self.board[move] = 0
+                self.board = previous_board
                 min_eval = min(min_eval, eval)
             return min_eval
 
@@ -148,38 +179,21 @@ class OthelloGame:
         best_move = None
         max_eval = float('-inf')
         valid_moves = self.get_valid_moves()
+        print(self.current_player, valid_moves)
+        previous_board = self.board.copy()
         for move in valid_moves:
+            print(move)
             self.make_move(*move)
             if alpha_beta:
                 eval = self.minimax_alpha_beta(depth - 1, float('-inf'), float('inf'), False)
             else:
                 eval = self.minimax(depth - 1, False)
-            self.board[move] = 0  # Undo move
+            self.board = previous_board
             if eval > max_eval:
                 max_eval = eval
                 best_move = move
+
         return best_move
-
-    def play_two_players(self):
-        while True:
-            print("Current board:")
-            self.print_board()
-            print("Player", self.current_player, "to move.")
-            valid_moves = self.get_valid_moves()
-            if not valid_moves:
-                print("No valid moves. Skipping turn.")
-                self.current_player *= -1
-                continue
-
-            print("Valid moves:", valid_moves)
-            row = int(input("Enter row: "))
-            col = int(input("Enter column: "))
-            if (row, col) in valid_moves:
-                self.make_move(row, col)
-                if len(valid_moves) == 1:
-                    self.current_player *= -1
-            else:
-                print("Invalid move. Try again.")
 
     def play_with_ai(self, alpha_beta = False):
         while True:
@@ -204,10 +218,14 @@ class OthelloGame:
                     continue
             else:
                 print("AI is thinking...")
-                row, col = self.get_best_move(depth=3, alpha_beta = alpha_beta)
-            self.make_move(row, col)
-            if len(valid_moves) == 1:
-                self.current_player *= -1
+                valid_moves = self.get_valid_moves()    
+                if valid_moves:
+                    print("Valid moves:", valid_moves)
+
+                row, col = self.get_best_move(depth=1, alpha_beta = alpha_beta)
+                self.make_move(row, col)
+                if len(valid_moves) == 1:
+                    self.current_player *= -1
 
 
 # game = OthelloGame()
@@ -217,9 +235,7 @@ class OthelloGame:
 # game.make_move(2, 4)
 # game.print_board()
 
-# game = OthelloGame()
-# game.play_two_players()
-
-
 game = OthelloGame()
+game.play_two_players()
+
 game.play_with_ai()
