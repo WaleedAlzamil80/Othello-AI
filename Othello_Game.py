@@ -8,6 +8,12 @@ class OthelloGame:
         self.board[3, 3] = self.board[4, 4] = 1
         self.board[3, 4] = self.board[4, 3] = -1
         self.current_player = 1
+        self.reset()
+
+    def reset(self):
+        self.board[3][3] = self.board[4][4] = 1
+        self.board[3][4] = self.board[4][3] = -1
+        self.current_player = 1
 
     def is_valid_move(self, row, col):
         if self.board[row, col] != 0:
@@ -110,14 +116,15 @@ class OthelloGame:
 
         def corners_captured():
             pass
-            # max_player_corners = np.sum(self.board == self.current_player * 100)
-            # min_player_corners = np.sum(self.board == -self.current_player * 100)
-            # return 100 * (max_player_corners - min_player_corners) / (max_player_corners + min_player_corners + 1)
 
         def stability():
-            return 0
+            pass
 
         return coin_parity() + mobility() # + corners_captured() + stability()
+
+    def is_done(self):
+        # Check if game is over (no valid moves for either player)
+        return False  # Placeholder
 
     def minimax_alpha_beta(self, depth, alpha, beta, maximizing_player):
         if depth == 0:
@@ -161,7 +168,6 @@ class OthelloGame:
         if maximizing_player:
             max_eval = float('-inf')
             for move in valid_moves:
-                
                 previous_board = copy.deepcopy(self.board)
                 self.make_move(*move)
                 eval = self.minimax(depth - 1, False)
@@ -207,7 +213,7 @@ class OthelloGame:
             print(self.board)
             print("Player", self.current_player, "to move.")
             if self.current_player == 1:
-                valid_moves = self.get_valid_moves()    
+                valid_moves = self.get_valid_moves()
                 if valid_moves:
                     print("Valid moves:", valid_moves)
                     row = int(input("Enter row: "))
@@ -223,7 +229,7 @@ class OthelloGame:
                     continue
             else:
                 print("AI is thinking...")
-                valid_moves = self.get_valid_moves()    
+                valid_moves = self.get_valid_moves()
                 if valid_moves:
                     print("Valid moves:", valid_moves)
 
