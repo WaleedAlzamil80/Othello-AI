@@ -1,33 +1,29 @@
+import tqdm
 import copy
 import numpy as np
 from Othello_Game import Othello_Game
 
 class MCTs_Node:
-    def __init__(self, state = None, to_play = 1, parent = None):
+    def __init__(self, prior, state = None, to_play = 1, parent = None):
+        self.pripr = prior      # Prior probability for selecting this node given by the policy network
         self.state = state      # Board
         self.player = to_play   # Player that need to take the action
         self.parent = parent    # The state's parent node in tree
         self.visit_count = 0    # The number of times this node has been visited by MCTs
-        self.win_count = 0      # The number of times this node result to win the player to play
         self.values_sum = 0     # The sum of the environment heuristic of this state through running MCTs
-        self.children = {}      # look up table - action : child (state: board)
+        self.children = {}      # look up table - action : child (MCTs_Node)
 
     def IsExpaded(self):
         return len(self.children) > 0
 
     def nodeValue(self):
-        return self.values_sum / (self.visit_count + 1e-6)
+        if self.visit_count == 0:
+            return 0
+        return self.values_sum / self.visit_count
 
-    def randomAction(self):
+    def select_action(self):
         actions = [action for action in self.children.keys()]
-        return np.random.choice(actions)
-
-    def select_action(self, ucb = True):
-        visit_counts = np.array([child.visit_count for child in self.children.values()])
-        actions = np.array([child.visit_count for child in self.children.keys()])
-        if ucb:
-            return actions[np.argmax(visit_counts)]
-        return actions[np.argmax([child.nodeValue for child in self.children.values()])]
+        return actions[np.argmax([child.visit_count for child in self.children.values()])]
 
     def select_child(self):
         bestScore = -np.inf
@@ -42,38 +38,63 @@ class MCTs_Node:
         return bestChild, bestAction
 
     def calcUCB(self, child):
-        return child.nodeValue() - np.sqrt(2 * np.log(self.visited) / (child.visited + 1))
+        prior_score = child.prior * np.sqrt(self.visit_count) / (child.visit_count + 1)
+        if child.visit_count > 0:
+            value_score = -child.nodeValue()
+        else:
+            value_score = 0
+        return value_score + prior_score
 
     def expand(self, state, to_play, action_props):
         self.state = state
         self.to_play = to_play
 
         for p, prop in enumerate(action_props):
-            if prop > 1e-7:
-                self.children[p] = MCTs_Node()
+            if prop != 0:
+                self.children[p] = MCTs_Node(prior = prop, to_play=-self.to_play, parent = self)
 
-    def simulate(self, game, depth):
-        """Simulate from this node and update the value of each nodes"""
-        current = self
-        while depth != 0:
-            action = current.select_action()
-            nextState = game.getNextState(current.state, action)
-            if game.isEndOfGame(nextState):
-                reward = game.getReward(nextState, -current.player)
-                while current is not None:
-                    current.values_sum += reward * current.nodeValue()
-                    current.visit_count += 1
-                    current = current.parent
-                break
-            else:
-                current = current.children[action]
-                depth -= 1
 class MCTs:
-    def __init__(self, board, num_simulations, game):
-        self.board = board
+    def __init__(self, game, num_simulations, model):
+        self.game = copy.deepcopy(game)
         self.num_simulations = num_simulations
-        self.game = game
-        self.root = MCTs_Node(copy.deepcopy(game.board))
+        self.model = model
 
-    def simulation(self, Vpi, Ppi, state, player):
-        pass
+    def simulation(self, Vpi, Ppi, state = None, player = None):
+        if state != None and player != None:
+            self.game.board.reset()
+            self.game.board.set_state(state, player)
+
+        root = MCTs_Node(0, state = self.game.board, to_play=player)
+        self._expand(root, Vpi, Ppi, state, player)
+
+        for i in range(self.num_simulations):
+            node = root
+
+            # Selection
+            while node.IsExpaded():
+                node, action = node.select_child()
+                reward = self.game.make_move(action)
+
+            # Expansion
+            state = self.game.board
+            self.game.make_move(action)
+
+            if not self.game.is_done():
+                reward = self._expand()
+
+            # backprobagation
+            self.backpropagate(node, reward)
+
+        return node
+
+    def  _expand(self, node, Vpi, Ppi, state, player):
+        node.Expand(Vpi, Ppi, state, player)
+
+    def backpropagate(self, node, reward):
+        while node != None:
+            node.visit_count += 1
+            node.value_sum += reward
+            reward *= -1
+            node = node.parent
+
+# value = child_node.win_count / child_node.visit_count + exploration_param * np.sqrt(np.log(node.visit_count) / child_node.visit_count)

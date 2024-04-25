@@ -4,7 +4,7 @@ import copy
 class OthelloGame:
     def __init__(self):
         self.board_size = 8
-        self.board = np.zeros((self.board_size, self.board_size), dtype=int)
+        self.board = np.zeros((self.board_size, self.board_size), dtype=int) # 1: player1, -1: player2,  0: Empty
         self.board[3, 3] = self.board[4, 4] = 1
         self.board[3, 4] = self.board[4, 3] = -1
         self.current_player = 1
@@ -14,6 +14,10 @@ class OthelloGame:
         self.board[3][3] = self.board[4][4] = 1
         self.board[3][4] = self.board[4][3] = -1
         self.current_player = 1
+
+    def set_state(self, state, to_play):
+        self.board = state
+        self.current_player = to_play
 
     def is_valid_move(self, row, col):
         if self.board[row, col] != 0:
@@ -59,7 +63,16 @@ class OthelloGame:
         self.board[row, col] = self.current_player
         self._flip_pieces(row, col)
         self.current_player *= -1
-        
+        ones = np.sum(self.board == 1)
+        mones = np.sum(self.board == -1)
+        if ones > mones:
+            reward = 1
+        elif mones > ones:
+            reward = -1
+        else:
+            reward = 0
+        return reward
+
     def _flip_pieces(self, row, col):
         for dr in [-1, 0, 1]:
             for dc in [-1, 0, 1]:
@@ -115,12 +128,12 @@ class OthelloGame:
             return 100 * (max_player_mobility - min_player_mobility) / (max_player_mobility + min_player_mobility + 1)
 
         def corners_captured():
-            pass
+            return 0
 
         def stability():
-            pass
+            return 0
 
-        return coin_parity() + mobility() # + corners_captured() + stability()
+        return coin_parity() + mobility() + corners_captured() + stability()
 
     def is_done(self):
         # Check if game is over (no valid moves for either player)
