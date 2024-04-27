@@ -1,11 +1,11 @@
-import tqdm
 import copy
 import numpy as np
-from Othello_Game import Othello_Game
+from Othello_Game import OthelloGame
+from Nets import Polivy_model, Value_model
 
 class MCTs_Node:
     def __init__(self, prior, state = None, to_play = 1, parent = None):
-        self.pripr = prior      # Prior probability for selecting this node given by the policy network
+        self.prior = prior      # Prior probability for selecting this node given by the policy network
         self.state = state      # Board
         self.player = to_play   # Player that need to take the action
         self.parent = parent    # The state's parent node in tree
@@ -45,27 +45,30 @@ class MCTs_Node:
             value_score = 0
         return value_score + prior_score
 
-    def expand(self, state, to_play, action_props):
+    def expand(self, state, to_play, action_props, game):
         self.state = state
         self.to_play = to_play
 
         for p, prop in enumerate(action_props):
             if prop != 0:
-                self.children[p] = MCTs_Node(prior = prop, to_play=-self.to_play, parent = self)
-
+                action = (p // 8, p % 8)
+                temp = copy.deepcopy(game)
+                reward, done = temp.make_move(*action)
+                self.children[action] = MCTs_Node(state = temp.board, prior = prop, to_play=-self.to_play, parent = self)
+            
 class MCTs:
     def __init__(self, game, num_simulations, model):
         self.game = copy.deepcopy(game)
         self.num_simulations = num_simulations
         self.model = model
 
-    def simulation(self, Vpi, Ppi, state = None, player = None):
+    def simulation(self, value_net, policy_net, state = None, player = None):
+        self.game.board.reset()
         if state != None and player != None:
-            self.game.board.reset()
             self.game.board.set_state(state, player)
 
-        root = MCTs_Node(0, state = self.game.board, to_play=player)
-        self._expand(root, Vpi, Ppi, state, player)
+        root = MCTs_Node(prior = 0, state = self.game.board, to_play=player)
+        self._expand(root, value_net, policy_net, state, player)
 
         for i in range(self.num_simulations):
             node = root
@@ -73,28 +76,33 @@ class MCTs:
             # Selection
             while node.IsExpaded():
                 node, action = node.select_child()
-                reward = self.game.make_move(action)
+                reward, done = self.game.make_move(*action)
 
-            # Expansion
-            state = self.game.board
-            self.game.make_move(action)
+            # Expansion and Simulation
 
-            if not self.game.is_done():
-                reward = self._expand()
 
-            # backprobagation
+            # Backprobagate
             self.backpropagate(node, reward)
 
         return node
 
-    def  _expand(self, node, Vpi, Ppi, state, player):
-        node.Expand(Vpi, Ppi, state, player)
+    def _expand(self, node, value_net, policy_net, state, to_play):
+        state_tensor = torch.tensor(state).type(torch.FloatTensor).reshape(1, -1)
+        action_probs = policy_net.forward(state_tensor).reshape(-1).detach().cpu().numpy()
+        value = value_net.forward(state_tensor).reshape(-1).detach().cpu().numpy()[0][0]
+        valid_moves = self.game.get_valid_moves()
+        action_prob_masked = np.zeros_like(action_probs)
+        for row, col in valid_moves:
+            action_prob_masked[0][row * 8 + col] = action_probs[0][row * 8 + col]
+        action_probs /= np.sum(action_probs)
+        temp_game = copy.deepcopy(self.game)
+        node.expand(state, to_play, action_probs, temp_game)
+        return value
 
-    def backpropagate(self, node, reward):
+
+    def backprobagate(self, node, reward):
         while node != None:
             node.visit_count += 1
             node.value_sum += reward
             reward *= -1
             node = node.parent
-
-# value = child_node.win_count / child_node.visit_count + exploration_param * np.sqrt(np.log(node.visit_count) / child_node.visit_count)

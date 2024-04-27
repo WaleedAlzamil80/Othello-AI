@@ -65,13 +65,15 @@ class OthelloGame:
         self.current_player *= -1
         ones = np.sum(self.board == 1)
         mones = np.sum(self.board == -1)
+
         if ones > mones:
             reward = 1
         elif mones > ones:
             reward = -1
         else:
             reward = 0
-        return reward
+
+        return reward, self.is_done()
 
     def _flip_pieces(self, row, col):
         for dr in [-1, 0, 1]:

@@ -1,34 +1,16 @@
-import torch
 from torch import nn
+import torch
 import copy
 import numpy as np
-from Othello_Game import Othello_Game
 from MCTs import MCTs
- 
+from Nets import Polivy_model, Value_model
 
-class MCTrainer:
-    def __init__(self, environment, player, num_simulations, eps_per_iteration, batch_size):
+class Trainer:
+    def __init__(self, environment, policy_net, value_net, num_simulations, eps_per_iteration, batch_size):
         self.game = environment()
         self.MC = MCTs(board = copy.deepcopy(self.game), num_simulations = num_simulations)
-        self.policy_net = nn.Sequential(nn.Linear(64, 128),
-                                        nn.ReLU(),
-                                        nn.Linear(128, 128),
-                                        nn.ReLU(),
-                                        nn.Linear(128, 64),
-                                        nn.ReLU(),
-                                        nn.Linear(64, 64),
-                                        nn.Softmax(dim = 1)
-                                        )
-        self.value_net = nn.Sequential(nn.Linear(64, 128),
-                                        nn.ReLU(),
-                                        nn.Linear(128, 128),
-                                        nn.ReLU(),
-                                        nn.Linear(128, 64),
-                                        nn.ReLU(),
-                                        nn.Linear(64, 1),
-                                        nn.Tanh()
-                                        )
-        self.player = player
+        self.policy_net = policy_net
+        self.value_net = value_net
         self.eps_per_iteration = eps_per_iteration
         self.batch_size = batch_size
 
@@ -41,7 +23,7 @@ class MCTrainer:
         train_data = []
 
         while(True):
-            tree = self.MC.simulation(self.Vpi, self.Ppi, self.game.board, self.game.current_player)
+            tree = self.MC.simulation(self.value_net, self.policy_net, self.game.board, self.game.current_player)
             action_probs = np.zeros(self.game.board.reshape(-1, 1).shape)
             for action, child in tree.children.items():
                 action_probs[action[0] * 8 + action[1]] += child.visit_count
@@ -68,7 +50,7 @@ class MCTrainer:
         for iter in range(iterations):
             train_data = []
             for eps in range(self.eps_per_iteration):
-                train_data.extend(self.generate_episode())
+                train_data.extend(self.generate_episodes())
 
             for epoch in range(epochs):
                 self.policy_net.train()
