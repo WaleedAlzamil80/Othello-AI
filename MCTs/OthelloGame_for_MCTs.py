@@ -1,4 +1,5 @@
 import copy
+import random
 import math
 import numpy as np
 
@@ -51,7 +52,6 @@ class OthelloGame:
         return valid_moves
 
     def make_move(self, state, player, row, col):
-
         if not self.is_valid_move(state, player, row, col):
             raise ValueError('Invalid move')
         state[row, col] = player
@@ -88,8 +88,7 @@ class OthelloGame:
     def is_done(self, state):
         v1 = self.get_valid_moves(state, 1)
         v2 = self.get_valid_moves(state, -1)
-
-        return (len(v1) > 0) or (len(v2) > 0)
+        return ((len(v1) == 0) and (len(v2) == 0))
 
     def winner(self, state):
         ones = np.sum(state == 1)
@@ -112,6 +111,3 @@ class OthelloGame:
         ).astype(np.float32)
 
         return encoded_state
-
-    def change_prespective(self, state, player):
-      return state*player

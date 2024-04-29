@@ -1,8 +1,13 @@
 import copy
+import random
+import math
 import numpy as np
+from Othello_Game import OthelloGame as othellobase
+from OthelloGame_for_MCTs import OthelloGame as othellogame
 
 class MCTs_Node:
     def __init__(self, game, to_play = 1, state = None, parent = None, action_taken = None):
+        self.action_taken = action_taken
         self.state = state      # Board
         self.player = to_play   # Player that need to take the action
         self.parent = parent    # The state's parent node in tree
@@ -12,7 +17,7 @@ class MCTs_Node:
         self.game = game
         self.expandable_moves = self.game.get_valid_moves(state, to_play)
 
-    def IsExpaded(self):
+    def IsExpanded(self):
         return len(self.children) > 0
 
     def IsFullExpanded(self):
@@ -36,7 +41,14 @@ class MCTs_Node:
         return bestChild
 
     def calcUCB(self, child):
-        prior_score = child.prior * np.sqrt(self.visit_count) / (child.visit_count + 1)
+        # prior_score = np.sqrt(self.visit_count) / (child.visit_count + 1)
+        # if child.visit_count > 0:
+        #     q_value = 1 - (child.values_sum / (child.visit_count + 1)) / 2
+        # else:
+        #     q_value = 0
+        # return q_value + 2 * np.sqrt(self.visit_count) / (child.visit_count + 1)
+
+        prior_score = np.sqrt(self.visit_count) / (child.visit_count + 1)
         if child.visit_count > 0:
             value_score = -child.nodeValue()
         else:
@@ -44,29 +56,37 @@ class MCTs_Node:
         return value_score + prior_score
 
     def expand(self):
-        action = np.random.choice(self.expandable_moves)
-        self.expandabel_moves.remove(action)
+        action = random.choice(self.expandable_moves)
+        self.expandable_moves.remove(action)
         child_state = copy.deepcopy(self.state)
-        child_state, _, _ = self.game.make_move(child_state, action, self.player)
+        child_state, _, _ = self.game.make_move(child_state, self.player, action[0], action[1])
         self.children.append(MCTs_Node(self.game, -self.player, child_state, self, action))
         return self.children[-1]
 
     def simulation(self):
-        value, is_ternminal = self.game.value_termination(self.state)
+        value, is_terminal = self.game.value_termination(self.state)
         if is_terminal:
           return value
 
         rollout_state = copy.deepcopy(self.state)
         rollout_player = self.player
         while True:
-          valid_moves = self.game.get_valid_moves(rollout_state)
-          action = np.random.choice(valid_moves)
-          rollout_state, _, _ = self.game.make_move(rollout_state, action, rollout_player)
+          value, is_terminal = self.game.value_termination(rollout_state)
+          valid_moves = self.game.get_valid_moves(rollout_state, rollout_player)
+
+          if len(valid_moves) == 0:
+              if not is_terminal:
+                  rollout_player *= -1
+                  valid_moves = self.game.get_valid_moves(rollout_state, rollout_player)
+              elif is_terminal:
+                return value
+
+          action = random.choice(valid_moves)
+          rollout_state, _, _ = self.game.make_move(rollout_state, rollout_player, action[0], action[1])
           value, is_terminal = self.game.value_termination(rollout_state)
           if is_terminal:
               return value
-          rollout_player *= -1          
-
+          rollout_player *= -1
 
 class MCTs:
     def __init__(self, game, num_simulations):
@@ -81,23 +101,24 @@ class MCTs:
             node = root
 
             # Selection
-            while node.IsFullExpanded():
+            while node.IsExpanded():
                 node = node.select_child()
 
             value, is_terminal = self.game.value_termination(node.state)
 
-            # Expansion and Simulation
-            if not is_terminal:
+            valid_moves = self.game.get_valid_moves(node.state, node.player)
+            if (len(valid_moves) > 0) and (not is_terminal):
                 node = node.expand()
-                value = node.simulate()
+                value = node.simulation()
 
             # Backprobagate
             self.backprobagate(node, value)
 
         action_probs = np.zeros(self.game.action_space)
         for child in root.children:
-            row, col = child.take_action[0], child.take_action[1]
+            row, col = child.action_taken[0], child.action_taken[1]
             action_probs[row * 8 + col] = child.visit_count
+
         action_probs /= np.sum(action_probs)
 
         return action_probs
@@ -108,3 +129,40 @@ class MCTs:
             node.values_sum += value
             value *= -1
             node = node.parent
+
+
+othello = othellobase()
+game = othellogame()
+mcts = MCTs(othello, 100)
+
+
+while not game.is_done():
+      state = copy.deepcopy(game.board)
+      print("Current board:")
+      print("Player 1: ", ones)
+      print("Player -1: ", mones)
+      print(state)
+      print("------------------------------------------------------")
+
+      ones = np.sum(game.board== 1)
+      mones = np.sum(game.board == -1)
+      valid_moves = game.get_valid_moves()
+      if not valid_moves:
+          print("No valid moves. Skipping turn.")
+          game.current_player *= -1
+          continue
+      print("Valid moves: ", valid_moves)
+      if game.current_player == 1:
+          print("MiMa player: ", game.current_player)
+
+          row, col = game.get_best_move(depth=2, alpha_beta = True)
+          print(row, col)
+          game.make_move(row, col)
+      else:
+          print("MCTs player: ", game.current_player)
+          mcts_probs = mcts.search(state, game.current_player)
+          action = np.argmax(mcts_probs)
+          row = action // 8
+          col = action % 8
+          print(row, col)
+          game.make_move(row, col)
