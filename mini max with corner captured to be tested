@@ -1,0 +1,108 @@
+import numpy as np
+import copy
+
+class Minmax:
+
+    def minimax_alpha_beta(depth, alpha, beta, maximizing_player, board):
+        if depth == 0:
+            board.current_player *= -1
+            return Minmax.evaluate_heuristic()
+
+        valid_moves = board.get_valid_moves()
+        if maximizing_player:
+            max_eval = float('-inf')
+            for move in valid_moves:
+                previous_board = copy.deepcopy(board.board)
+                board.make_move(*move)
+                eval = Minmax.minimax_alpha_beta(depth - 1, alpha, beta, False, board)
+                board.board = previous_board
+                max_eval = max(max_eval, eval)
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break
+            board.current_player *= -1
+            return max_eval
+        else:
+            min_eval = float('inf')
+            for move in valid_moves:
+                previous_board = copy.deepcopy(board.board)
+                board.make_move(*move)
+                eval = Minmax.minimax_alpha_beta(depth - 1, alpha, beta, True, board)
+                board.board = copy.deepcopy(previous_board)
+                min_eval = min(min_eval, eval)
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break
+            board.current_player *= -1
+            return min_eval
+
+    def minimax(depth, maximizing_player, board):
+        if not depth:
+            board.current_player *= -1
+            return Minmax.evaluate_heuristic()
+
+        valid_moves = board.get_valid_moves()
+        if maximizing_player:
+            max_eval = float('-inf')
+            for move in valid_moves:
+                previous_board = copy.deepcopy(board.board)
+                board.make_move(*move)
+                eval = Minmax.minimax(depth - 1, False, board)
+                max_eval = max(max_eval, eval)
+                board.board = copy.deepcopy(previous_board)
+
+            board.current_player *= -1
+            return max_eval
+        else:
+            min_eval = float('inf')
+            for move in valid_moves:
+                previous_board = copy.deepcopy(board.board)
+                board.make_move(*move)
+                eval = Minmax.minimax(depth - 1, True, board)
+                min_eval = min(min_eval, eval)
+                board.board = copy.deepcopy(previous_board)
+
+            board.current_player *= -1
+            return min_eval
+
+    def evaluate_heuristic(board):
+        def coin_parity():
+            max_player_coins = np.sum(board.board == board.current_player)
+            min_player_coins = np.sum(board.board == -board.current_player)
+            return 100 * (max_player_coins - min_player_coins) / (max_player_coins + min_player_coins + 1)
+
+        def mobility():
+            max_player_mobility = len(board.get_valid_moves())
+            board.current_player *= -1
+            min_player_mobility = len(board.get_valid_moves())
+            board.current_player *= -1
+            return 100 * (max_player_mobility - min_player_mobility) / (max_player_mobility + min_player_mobility + 1)
+
+        def corners_captured(board):
+            maxCorners = 0
+            minCorners = 0
+            if board[0][0] == 1:
+                maxCorners += 1
+            elif board[0][0] == -1:
+                minCorners += 1
+            if board[0][7] == 1:
+                maxCorners += 1
+            elif board[0][7] == -1:
+                minCorners += 1
+            if board[7][0] == 1:
+                maxCorners += 1
+            elif board[7][0] == -1:
+                minCorners += 1
+            if board[7][7] == 1:
+                maxCorners += 1
+            elif board[7][7] == -1:
+                minCorners += 1
+            if maxCorners + minCorners != 0:
+                return 100.0 * (maxCorners - minCorners) / (maxCorners + minCorners)
+            else:
+                return 0
+
+        def stability():
+            return 0
+
+        return coin_parity() + mobility() + corners_captured() + stability()
