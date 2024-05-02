@@ -26,7 +26,7 @@ args = parser.parse_args()
 
 othello = OthelloGame()
 game = OthelloGAME()
-model = ResNet(othello, args.NB, args.BatchSize)
+model = ResNet(args.NB, args.BatchSize)
 mcts = MCTs_RL(othello, args.search, model)
 
 while not game.is_done():

@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class ResNet(nn.Module):
-    def __init__(self, num_resBlocks, num_hidden):
+    def __init__(self, num_resBlocks = 4, num_hidden = 64):
         super().__init__()
         self.startBlock = nn.Sequential(
             nn.Conv2d(3, num_hidden, kernel_size=3, padding=1),
