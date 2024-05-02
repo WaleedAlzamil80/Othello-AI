@@ -1,11 +1,12 @@
 import copy
 import numpy as np
+import argparse
+
 from RL.MCTs_Actor_Critic import *
 from RL.OthelloGame import *
 from Othello_Game import *
 from RL.Nets import *
-from RL import *
-import argparse
+from RL.RL import *
 
 parser = argparse.ArgumentParser(description="Specify the algorithms parameters.")
 
