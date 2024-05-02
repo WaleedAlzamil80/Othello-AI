@@ -1,4 +1,4 @@
-from MCTs_Actor_Critic import *
+from RL.MCTs_Actor_Critic import *
 import random
 import torch.nn.functional as F
 
