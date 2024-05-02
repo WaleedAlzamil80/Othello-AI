@@ -65,7 +65,7 @@ while not game.is_done():
 
 othello = OthelloGame()
 game = OthelloGAME()
-model = ResNet(othello, args.NB, args.BatchSize)
+model = ResNet(args.NB, args.BatchSize)
 mcts = MCTs_RL(othello, args.search, model)
 
 optimizer = torch.optim.Adam(model.parameters(), lr = args.lr)
