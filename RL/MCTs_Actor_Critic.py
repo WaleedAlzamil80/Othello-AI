@@ -1,19 +1,20 @@
 import copy
 import numpy as np
-from Othello_Game import OthelloGame
-from Nets import Polivy_model, Value_model
+import torch
 
-class MCTs_Node:
-    def __init__(self, prior, state = None, to_play = 1, parent = None):
-        self.prior = prior      # Prior probability for selecting this node given by the policy network
+class MCTs_Node_RL:
+    def __init__(self, game, to_play = 1, state = None, parent = None, action_taken = None, prior = None):
+        self.prior = prior
+        self.action_taken = action_taken
         self.state = state      # Board
         self.player = to_play   # Player that need to take the action
         self.parent = parent    # The state's parent node in tree
         self.visit_count = 0    # The number of times this node has been visited by MCTs
         self.values_sum = 0     # The sum of the environment heuristic of this state through running MCTs
-        self.children = {}      # look up table - action : child (MCTs_Node)
+        self.children = []
+        self.game = game
 
-    def IsExpaded(self):
+    def IsExpanded(self):
         return len(self.children) > 0
 
     def nodeValue(self):
@@ -21,88 +22,84 @@ class MCTs_Node:
             return 0
         return self.values_sum / self.visit_count
 
-    def select_action(self):
-        actions = [action for action in self.children.keys()]
-        return actions[np.argmax([child.visit_count for child in self.children.values()])]
-
     def select_child(self):
         bestScore = -np.inf
         bestChild = None
         bestAction = -1
 
         ########### Selection ###########
-        for action, child in self.actions.items():
+        for child in self.children:
             score = self.calcUCB(child)
             if score > bestScore:
-                bestScore, bestChild, bestAction = score, child, action
-        return bestChild, bestAction
+                bestScore, bestChild = score, child
+        return bestChild
 
     def calcUCB(self, child):
-        prior_score = child.prior * np.sqrt(self.visit_count) / (child.visit_count + 1)
+        prior_score = np.sqrt(self.visit_count) / (child.visit_count + 1)
         if child.visit_count > 0:
-            value_score = -child.nodeValue()
+            q_value = 1 - (child.values_sum / (child.visit_count + 1)) / 2
         else:
-            value_score = 0
-        return value_score + prior_score
+            q_value = 0
+        return q_value + child.prior * 2 * np.sqrt(np.log(self.visit_count)) / (child.visit_count + 1)
 
-    def expand(self, state, to_play, action_props, game):
-        self.state = state
-        self.to_play = to_play
+    def expand(self, policy):
+        for ind, prob in enumerate(policy):
+            if prob > 0:
+              child_state = copy.deepcopy(self.state)
+              child_state, _, _ = self.game.make_move(child_state, self.player, ind // 8, ind % 8)
+              self.children.append(MCTs_Node_RL(self.game, -self.player, child_state, self, ind, prob))
 
-        for p, prop in enumerate(action_props):
-            if prop != 0:
-                action = (p // 8, p % 8)
-                temp = copy.deepcopy(game)
-                reward, done = temp.make_move(*action)
-                self.children[action] = MCTs_Node(state = temp.board, prior = prop, to_play=-self.to_play, parent = self)
-            
-class MCTs:
+        return self.children[-1]
+
+class MCTs_RL:
     def __init__(self, game, num_simulations, model):
         self.game = copy.deepcopy(game)
         self.num_simulations = num_simulations
         self.model = model
 
-    def simulation(self, value_net, policy_net, state = None, player = None):
-        self.game.board.reset()
-        if state != None and player != None:
-            self.game.board.set_state(state, player)
+    def search(self, state = None, player = None):
 
-        root = MCTs_Node(prior = 0, state = self.game.board, to_play=player)
-        self._expand(root, value_net, policy_net, state, player)
+        root = MCTs_Node_RL(self.game, state = state, to_play=player)
 
         for i in range(self.num_simulations):
             node = root
 
             # Selection
-            while node.IsExpaded():
-                node, action = node.select_child()
-                reward, done = self.game.make_move(*action)
+            while node.IsExpanded():
+                node = node.select_child()
+
+            value, is_terminal = self.game.value_termination(node.state)
 
             # Expansion and Simulation
+            valid_moves = self.game.get_valid_moves(node.state, node.player)
+            if (len(valid_moves) > 0) and (not is_terminal):
+                policy, value = self.model.predict(torch.tensor(self.game.encoded_state(node.state)).reshape(-1, 3, 8, 8))
+                valid_moves = self.game.get_valid_moves(node.state, node.player)
+                policy = policy.detach().cpu().numpy().reshape(-1)
+                value = value.detach().cpu().numpy()[0][0]
+                mask = np.zeros_like(policy)
+                for move in valid_moves:
+                    mask[move[0] * 8 + move[1]] = 1
+                policy *= mask
 
+                # print(policy, valid_moves)
+                policy /= np.sum(policy)
+                node = node.expand(policy)
 
             # Backprobagate
-            self.backpropagate(node, reward)
+            self.backprobagate(node, value)
 
-        return node
-
-    def _expand(self, node, value_net, policy_net, state, to_play):
-        state_tensor = torch.tensor(state).type(torch.FloatTensor).reshape(1, -1)
-        action_probs = policy_net.forward(state_tensor).reshape(-1).detach().cpu().numpy()
-        value = value_net.forward(state_tensor).reshape(-1).detach().cpu().numpy()[0][0]
-        valid_moves = self.game.get_valid_moves()
-        action_prob_masked = np.zeros_like(action_probs)
-        for row, col in valid_moves:
-            action_prob_masked[0][row * 8 + col] = action_probs[0][row * 8 + col]
+        action_probs = np.zeros(self.game.action_space)
+        for child in root.children:
+            row, col = child.action_taken // 8, child.action_taken % 8
+            action_probs[row * 8 + col] = child.visit_count
         action_probs /= np.sum(action_probs)
-        temp_game = copy.deepcopy(self.game)
-        node.expand(state, to_play, action_probs, temp_game)
-        return value
 
+        return action_probs
 
-    def backprobagate(self, node, reward):
+    def backprobagate(self, node, value):
         while node != None:
             node.visit_count += 1
-            node.value_sum += reward
-            reward *= -1
+            node.values_sum += value
+            value *= -1
             node = node.parent

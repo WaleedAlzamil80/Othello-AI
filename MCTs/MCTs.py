@@ -1,9 +1,6 @@
 import copy
 import random
-import math
 import numpy as np
-from Othello_Game import OthelloGame as othellobase
-from OthelloGame_for_MCTs import OthelloGame as othellogame
 
 class MCTs_Node:
     def __init__(self, game, to_play = 1, state = None, parent = None, action_taken = None):
@@ -129,40 +126,3 @@ class MCTs:
             node.values_sum += value
             value *= -1
             node = node.parent
-
-
-othello = othellobase()
-game = othellogame()
-mcts = MCTs(othello, 100)
-
-
-while not game.is_done():
-      state = copy.deepcopy(game.board)
-      print("Current board:")
-      print("Player 1: ", ones)
-      print("Player -1: ", mones)
-      print(state)
-      print("------------------------------------------------------")
-
-      ones = np.sum(game.board== 1)
-      mones = np.sum(game.board == -1)
-      valid_moves = game.get_valid_moves()
-      if not valid_moves:
-          print("No valid moves. Skipping turn.")
-          game.current_player *= -1
-          continue
-      print("Valid moves: ", valid_moves)
-      if game.current_player == 1:
-          print("MiMa player: ", game.current_player)
-
-          row, col = game.get_best_move(depth=2, alpha_beta = True)
-          print(row, col)
-          game.make_move(row, col)
-      else:
-          print("MCTs player: ", game.current_player)
-          mcts_probs = mcts.search(state, game.current_player)
-          action = np.argmax(mcts_probs)
-          row = action // 8
-          col = action % 8
-          print(row, col)
-          game.make_move(row, col)

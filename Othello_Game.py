@@ -1,4 +1,7 @@
- class OthelloGAME:
+import copy
+import numpy as np
+
+class OthelloGAME:
     def init(self):
         self.board_size = 8
         self.board = np.zeros((self.board_size, self.board_size), dtype=int) # 1: player1, -1: player2,  0: Empty
@@ -118,19 +121,19 @@
         semi_stable_count = 0
         unstable_count = 0
 
-for row in range(self.board_size):
-            for col in range(self.board_size):
-                if self.board[row, col] == player:
-                    if (row == 0 or row == self.board_size - 1) and (col == 0 or col == self.board_size - 1):
-                        stable_count += 1
-                    else:
-                        neighbors = [(row + dr, col + dc) for dr in range(-1, 2) for dc in range(-1, 2)
-                                    if 0 <= row + dr < self.board_size and 0 <= col + dc < self.board_size]
-                        neighbor_values = [self.board[r, c] for r, c in neighbors]
-                        if ' ' in neighbor_values and player in neighbor_values:
-                            semi_stable_count += 1
-                        else:
-                            unstable_count += 1
+        for row in range(self.board_size):
+                    for col in range(self.board_size):
+                        if self.board[row, col] == player:
+                            if (row == 0 or row == self.board_size - 1) and (col == 0 or col == self.board_size - 1):
+                                stable_count += 1
+                            else:
+                                neighbors = [(row + dr, col + dc) for dr in range(-1, 2) for dc in range(-1, 2)
+                                            if 0 <= row + dr < self.board_size and 0 <= col + dc < self.board_size]
+                                neighbor_values = [self.board[r, c] for r, c in neighbors]
+                                if ' ' in neighbor_values and player in neighbor_values:
+                                    semi_stable_count += 1
+                                else:
+                                    unstable_count += 1
 
         return weights['stable'] * stable_count + weights['semi-stable'] * semi_stable_count + weights['unstable'] * unstable_count
 
@@ -190,7 +193,7 @@ for row in range(self.board_size):
             self.current_player *= -1
             return self.evaluate_heuristic()
 
-valid_moves = self.get_valid_moves()
+        valid_moves = self.get_valid_moves()
         if maximizing_player:
             max_eval = float('-inf')
             for move in valid_moves:
