@@ -16,7 +16,7 @@ parser.add_argument("--NH", type=int, default=64, help="Number of hidden layers"
 parser.add_argument("--NB", type=int, default=4, help="Number of residual blocks")
 
 # Arguments used just during training
-parser.add_argument("--BbatchSize", type=int, default=64, help="Batch Size")
+parser.add_argument("--BatchSize", type=int, default=64, help="Batch Size")
 parser.add_argument("--epochs", type=int, default=5, help="Epochs")
 parser.add_argument("--self_play", type=int, default=500, help="Number of Games the model play before training")
 parser.add_argument("--iterations", type=int, default=5, help="Number of iteration the model play against  itself before training")
