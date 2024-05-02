@@ -11,6 +11,7 @@ from RL.RL import *
 
 cuda = True if torch.cuda.is_available() else False
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+print(device)
 
 parser = argparse.ArgumentParser(description="Specify the algorithms parameters.")
 
@@ -33,50 +34,11 @@ game = OthelloGAME()
 model = ResNet(args.NB, args.BatchSize)
 mcts = MCTs_RL(othello, args.search, model, device)
 
-while not game.is_done():
-      state = copy.deepcopy(game.board)
-      ones = np.sum(game.board== 1)
-      mones = np.sum(game.board == -1)
-      valid_moves = game.get_valid_moves()
-
-      print("Current board:")
-      print("Player 1: ", ones)
-      print("Player -1: ", mones)
-      print(state)
-      print("------------------------------------------------------")
-
-      if not valid_moves:
-          print("No valid moves. Skipping turn.")
-          game.current_player *= -1
-          continue
-      print("Valid moves: ", valid_moves)
-      if game.current_player == 1:
-          print("MiMa player: ", game.current_player)
-
-          row, col = game.get_best_move(depth=2, alpha_beta = True)
-          print(row, col)
-          game.make_move(row, col)
-      else:
-          print("MCTs player: ", game.current_player)
-          state = copy.deepcopy(game.board)
-          mcts_probs = mcts.search(state, game.current_player)
-          action = np.argmax(mcts_probs)
-          row = action // 8
-          col = action % 8
-          print(row, col)
-          game.make_move(row, col)
-
-
-othello = OthelloGame()
-game = OthelloGAME()
-model = ResNet(args.NB, args.BatchSize)
-mcts = MCTs_RL(othello, args.search, model, device)
-
 optimizer = torch.optim.Adam(model.parameters(), lr = args.lr)
 
 BASE_DIR = os.getcwd()
 
-LaylaZero = AlphaZero(GAME = othello, model = model, optimizer = optimizer, num_iteration = args.iterations, play_iteration = args.self_play, epochs = args.epochs, batch_size = args.BatchSize, num_simulation = args.search)
+LaylaZero = AlphaZero(GAME = othello, model = model, device = device, optimizer = optimizer, num_iteration = args.iterations, play_iteration = args.self_play, epochs = args.epochs, batch_size = args.BatchSize, num_simulation = args.search)
 poly, valy = LaylaZero.learn()
 
 # Create the new folder

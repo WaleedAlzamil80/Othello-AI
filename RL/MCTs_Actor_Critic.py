@@ -76,7 +76,6 @@ class MCTs_RL:
                 valid_moves = self.game.get_valid_moves(node.state, node.player)
                 policy = policy.detach().cpu().numpy().reshape(-1)
                 value = value.detach().cpu().numpy()[0][0]
-                print(policy," \n --------------" , value)
                 mask = np.zeros_like(policy)
                 for move in valid_moves:
                     mask[move[0] * 8 + move[1]] = 1

@@ -3,7 +3,7 @@ import random
 import torch.nn.functional as F
 
 class AlphaZero:
-  def __init__(self, model, optimizer, GAME, num_iteration = 5, play_iteration = 500, epochs = 5, batch_size = 64, num_simulation = 1000):
+  def __init__(self, model, optimizer, GAME, device, num_iteration = 5, play_iteration = 500, epochs = 5, batch_size = 64, num_simulation = 1000):
     self.model = model
     self.optimizer = optimizer
     self.game = GAME
@@ -12,7 +12,8 @@ class AlphaZero:
     self.play_iteration = play_iteration
     self.epochs = epochs
     self.batch_size = batch_size
-    self.mcts = MCTs_RL(GAME, num_simulation, model)
+    self.mcts = MCTs_RL(GAME, num_simulation, model, device)
+    self.device = device
 
   def selfPlay(self):
     memory = []
