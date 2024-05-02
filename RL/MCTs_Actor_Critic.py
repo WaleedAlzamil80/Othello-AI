@@ -25,7 +25,6 @@ class MCTs_Node_RL:
     def select_child(self):
         bestScore = -np.inf
         bestChild = None
-        bestAction = -1
 
         ########### Selection ###########
         for child in self.children:

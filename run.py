@@ -31,7 +31,7 @@ args = parser.parse_args()
 othello = OthelloGame()
 game = OthelloGAME()
 model = ResNet(args.NB, args.BatchSize)
-mcts = MCTs_RL(othello, args.search, model)
+mcts = MCTs_RL(othello, args.search, model, device)
 
 while not game.is_done():
       state = copy.deepcopy(game.board)
