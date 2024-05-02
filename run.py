@@ -1,9 +1,9 @@
 import copy
 import numpy as np
-from MCTs_Actor_Critic import *
-from OthelloGame import *
-from ..Othello_Game import *
-from Nets import *
+from RL.MCTs_Actor_Critic import *
+from RL.OthelloGame import *
+from Othello_Game import *
+from RL.Nets import *
 from RL import *
 import argparse
 
