@@ -2,9 +2,12 @@ import copy
 import random
 import math
 import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 class OthelloGame:
-    def __init__(self):
+    def init(self):
         self.board_size = 8
         self.action_space = self.board_size ** 2
 
@@ -56,17 +59,9 @@ class OthelloGame:
             raise ValueError('Invalid move')
         state[row, col] = player
         state = self._flip_pieces(state, player, row, col)
-        ones = np.sum(state == 1)
-        mones = np.sum(state == -1)
+        r, t = self.value_termination(state)
 
-        if ones > mones:
-            reward = 1
-        elif mones > ones:
-            reward = -1
-        else:
-            reward = 0
-
-        return state, reward, self.is_done(state)
+        return state, r, t
 
     def _flip_pieces(self, state, player, row, col):
         for dr in [-1, 0, 1]:
