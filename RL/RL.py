@@ -74,9 +74,9 @@ class AlphaZero:
 
           state, policy_targets, value_targets = np.array(state), np.array(policy_targets), np.array(value_targets).reshape(-1, 1)
 
-          state = torch.tensor(state, dtype=torch.float32)
-          policy_targets = torch.tensor(policy_targets, dtype=torch.float32)
-          value_targets = torch.tensor(value_targets, dtype=torch.float32)
+          state = torch.tensor(state, dtype=torch.float32).to(self.device)
+          policy_targets = torch.tensor(policy_targets, dtype=torch.float32).to(self.device)
+          value_targets = torch.tensor(value_targets, dtype=torch.float32).to(self.device)
 
           out_policy, out_value = self.model.forward(state)
 
