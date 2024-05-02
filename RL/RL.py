@@ -41,25 +41,23 @@ class AlphaZero:
   def learn(self):
     pol = []
     val = []
-    x = 0
     for iteration in range(self.num_iteration):
       print("-------------------------------------------------")
-      print(f"Iteration number {iteration}")
+      print(f"Iteration number {iteration + 1}")
       memory = []
       for playiter in range(self.play_iteration):
-          print(f"Play iteration {playiter}")
+          print(f"Play iteration {playiter + 1}")
           memory += self.selfPlay()
       print("-------------------------------------------------")
 
       self.model.train()
       for epoch in range(self.epochs):
 
-        x += 1
         p, v = self.train(memory)
         pol.append(p)
         val.append(v)
 
-        print(f"Epoch {x + 1}: policy Loss: {p:.4f} | value Loss: {v:.4f}")
+        print(f"Epoch {epoch + 1}: policy Loss: {p:.4f} | value Loss: {v:.4f}")
 
     pol, val
 

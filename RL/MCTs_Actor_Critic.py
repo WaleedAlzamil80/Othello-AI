@@ -52,10 +52,10 @@ class MCTs_Node_RL:
         return self.children[-1]
 
 class MCTs_RL:
-    def __init__(self, game, num_simulations, model):
+    def __init__(self, game, num_simulations, model, device):
         self.game = copy.deepcopy(game)
         self.num_simulations = num_simulations
-        self.model = model
+        self.model = model.to(device)
 
     def search(self, state = None, player = None):
 
@@ -74,6 +74,7 @@ class MCTs_RL:
             valid_moves = self.game.get_valid_moves(node.state, node.player)
             if (len(valid_moves) > 0) and (not is_terminal):
                 policy, value = self.model.predict(torch.tensor(self.game.encoded_state(node.state)).reshape(-1, 3, 8, 8))
+                policy, value = policy.cpu().detach().numpy(), value.cpu().detach().numpy()
                 valid_moves = self.game.get_valid_moves(node.state, node.player)
                 policy = policy.detach().cpu().numpy().reshape(-1)
                 value = value.detach().cpu().numpy()[0][0]

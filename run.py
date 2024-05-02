@@ -1,3 +1,4 @@
+import os
 import copy
 import numpy as np
 import argparse
@@ -7,6 +8,9 @@ from RL.OthelloGame import *
 from Othello_Game import *
 from RL.Nets import *
 from RL.RL import *
+
+cuda = True if torch.cuda.is_available() else False
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 parser = argparse.ArgumentParser(description="Specify the algorithms parameters.")
 
@@ -49,7 +53,7 @@ while not game.is_done():
       if game.current_player == 1:
           print("MiMa player: ", game.current_player)
 
-          row, col = game.get_best_move(depth=1, alpha_beta = True)
+          row, col = game.get_best_move(depth=2, alpha_beta = True)
           print(row, col)
           game.make_move(row, col)
       else:
@@ -66,9 +70,25 @@ while not game.is_done():
 othello = OthelloGame()
 game = OthelloGAME()
 model = ResNet(args.NB, args.BatchSize)
-mcts = MCTs_RL(othello, args.search, model)
+mcts = MCTs_RL(othello, args.search, model, device)
 
 optimizer = torch.optim.Adam(model.parameters(), lr = args.lr)
 
+BASE_DIR = os.getcwd()
+
 LaylaZero = AlphaZero(GAME = othello, model = model, optimizer = optimizer, num_iteration = args.iterations, play_iteration = args.self_play, epochs = args.epochs, batch_size = args.BatchSize, num_simulation = args.search)
 poly, valy = LaylaZero.learn()
+
+# Create the new folder
+directory = os.path.join(BASE_DIR, "results")
+os.makedirs(directory, exist_ok=True)
+
+# Save NumPy arrays with specified directory
+np.save(os.path.join(directory, 'poly_loss.npy'), np.array(poly))
+np.save(os.path.join(directory, 'poly_loss.npy'), np.array(valy))
+
+# Specify the file name for saving the model
+model_file = os.path.join(directory, 'model.pt')
+
+# Save the model to the specified directory
+torch.save(model.state_dict(), model_file)
