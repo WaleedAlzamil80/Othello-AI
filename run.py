@@ -70,5 +70,5 @@ mcts = MCTs_RL(othello, args.search, model)
 
 optimizer = torch.optim.Adam(model.parameters(), lr = args.lr)
 
-LaylaZero = AlphaZero(GAME = othello, model = model, optimizer = optimizer, num_iteration = args.iterations, play_iteration = args.self_play, epochs = args.epochs, batch_size = args.batchSize, num_simulation = args.search)
+LaylaZero = AlphaZero(GAME = othello, model = model, optimizer = optimizer, num_iteration = args.iterations, play_iteration = args.self_play, epochs = args.epochs, batch_size = args.BatchSize, num_simulation = args.search)
 poly, valy = LaylaZero.learn()
