@@ -1,7 +1,7 @@
 import numpy as np
 
 class OthelloGame:
-    def init(self):
+    def __init__(self):
         self.board_size = 8
         self.action_space = self.board_size ** 2
 

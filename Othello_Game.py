@@ -2,8 +2,8 @@ import copy
 import numpy as np
 
 class OthelloGAME:
-    def init(self):
-        self.board_size = 8
+    def __init__(self, board_size = 8):
+        self.board_size = board_size
         self.board = np.zeros((self.board_size, self.board_size), dtype=int) # 1: player1, -1: player2,  0: Empty
         self.board[3, 3] = self.board[4, 4] = 1
         self.board[3, 4] = self.board[4, 3] = -1
@@ -89,8 +89,15 @@ class OthelloGAME:
             self.board[r, c] = self.current_player
             r, c = r + dr, c + dc
 
+    def is_done(self):
+        v1 = self.get_valid_moves()
+        self.current_player *= -1
+        v2 = self.get_valid_moves()
+        self.current_player *= -1
+        return ((len(v1) == 0) and (len(v2) == 0))
+
     def play_two_players(self):
-        while True:
+        while not self.is_done():
             print("Current board:")
             print(self.board)
             ones = np.sum(self.board == 1)
@@ -181,13 +188,6 @@ class OthelloGAME:
 
         return coin_parity() + mobility() + corners_captured() + stability()
 
-    def is_done(self):
-        v1 = self.get_valid_moves()
-        self.current_player *= -1
-        v2 = self.get_valid_moves()
-        self.current_player *= -1
-        return ((len(v1) == 0) and (len(v2) == 0))
-
     def minimax_alpha_beta(self, depth, alpha, beta, maximizing_player):
         if depth == 0:
             self.current_player *= -1
@@ -270,7 +270,7 @@ class OthelloGAME:
         return best_move
 
     def play_with_ai(self, depth = 3, alpha_beta = False):
-        while True:
+        while not self.is_done():
             print("Current board:")
             print(self.board)
             print("Player", self.current_player, "to move.")
@@ -298,7 +298,8 @@ class OthelloGAME:
                 row, col = self.get_best_move(depth=depth, alpha_beta = alpha_beta)
                 self.make_move(row, col)
 
-def MinMax_vs_MCTs(self, depth = 3, alpha_beta = False, mcts = None):
+
+    def MinMax_vs_MCTs(self, depth = 3, alpha_beta = True, mcts = None):
         while not self.is_done():
             print("Current board:")
             print(self.board)
