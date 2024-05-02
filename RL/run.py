@@ -2,14 +2,31 @@ import copy
 import numpy as np
 from MCTs_Actor_Critic import *
 from OthelloGame import *
-from Othello_Game import *
+from ..Othello_Game import *
 from Nets import *
 from RL import *
+import argparse
+
+parser = argparse.ArgumentParser(description="Specify the algorithms parameters.")
+
+# Arguments for inference and play
+parser.add_argument("--search", type=int, default=1000, help="Searching and exploring the Game Space (Simulation)")
+parser.add_argument("--NH", type=int, default=64, help="Number of hidden layers")
+parser.add_argument("--NB", type=int, default=4, help="Number of residual blocks")
+
+# Arguments used just during training
+parser.add_argument("--BbatchSize", type=int, default=64, help="Batch Size")
+parser.add_argument("--epochs", type=int, default=5, help="Epochs")
+parser.add_argument("--self_play", type=int, default=500, help="Number of Games the model play before training")
+parser.add_argument("--iterations", type=int, default=5, help="Number of iteration the model play against  itself before training")
+parser.add_argument("--lr", type=float, default=0.001, help="Learning rate used while training")
+
+args = parser.parse_args()
 
 othello = OthelloGame()
 game = OthelloGAME()
-model = ResNet(othello, 4, 64)
-mcts = MCTs_RL(othello, 100, model)
+model = ResNet(othello, args.NB, args.BatchSize)
+mcts = MCTs_RL(othello, args.search, model)
 
 while not game.is_done():
       state = copy.deepcopy(game.board)
@@ -44,11 +61,13 @@ while not game.is_done():
           print(row, col)
           game.make_move(row, col)
 
+
 othello = OthelloGame()
 game = OthelloGAME()
-model = ResNet(othello, 4, 64)
-mcts = MCTs_RL(othello, 1000, model)
-optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
+model = ResNet(othello, args.NB, args.BatchSize)
+mcts = MCTs_RL(othello, args.search, model)
 
-LaylaZero = AlphaZero(GAME = othello, model = model, optimizer = optimizer)
+optimizer = torch.optim.Adam(model.parameters(), lr = args.lr)
+
+LaylaZero = AlphaZero(GAME = othello, model = model, optimizer = optimizer, num_iteration = args.iterations, play_iteration = args.self_play, epochs = args.epochs, batch_size = args.batchSize, num_simulation = args.search)
 poly, valy = LaylaZero.learn()
