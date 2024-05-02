@@ -60,7 +60,7 @@ class AlphaZero:
 
         print(f"Epoch {epoch + 1}: policy Loss: {p:.4f} | value Loss: {v:.4f}")
 
-    pol, val
+    return pol, val
 
 
   def train(self, memory):
