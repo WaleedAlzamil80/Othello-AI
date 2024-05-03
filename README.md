@@ -46,6 +46,7 @@ This repository implements various artificial intelligence (AI) algorithms for t
 | --depth          |  The number of turns (plies) considered for future moves, impacting the balance between speed and strategic evaluation. Default: 2        |
 
 3. **Monte Carlo Tree Search (MCTS)**:
+
 *Over View*
 - A powerful algorithm that utilizes simulations to explore the game tree.
 - It starts by building a tree of possible moves, then iteratively selects branches based on a balance between exploitation (choosing proven good moves) and exploration (trying new possibilities).
