@@ -3,8 +3,7 @@ import random
 import torch.nn.functional as F
 
 class AlphaZero:
-  def __init__(self, model, optimizer, GAME, device, num_iteration = 5, play_iteration = 500, epochs = 5, batch_size = 64, num_simulation = 1000):
-    self.model = model
+  def __init__(self, model, optimizer, GAME, device, cuda, num_iteration = 5, play_iteration = 500, epochs = 5, batch_size = 64, num_simulation = 1000):
     self.optimizer = optimizer
     self.game = GAME
     self.num_simulation = num_simulation
@@ -12,8 +11,13 @@ class AlphaZero:
     self.play_iteration = play_iteration
     self.epochs = epochs
     self.batch_size = batch_size
-    self.mcts = MCTs_RL(GAME, num_simulation, model, device)
+    self.mcts = MCTs_RL(GAME, num_simulation, model, device, cuda)
     self.device = device
+    self.cuda = cuda
+    if cuda:
+      self.model = model.to(device)
+    else:
+      self.model = model
 
   def selfPlay(self):
     memory = []
@@ -80,10 +84,14 @@ class AlphaZero:
           state, policy_targets, value_targets = zip(*sample)
 
           state, policy_targets, value_targets = np.array(state), np.array(policy_targets), np.array(value_targets).reshape(-1, 1)
-
-          state = torch.tensor(state, dtype=torch.float32).to(self.device)
-          policy_targets = torch.tensor(policy_targets, dtype=torch.float32).to(self.device)
-          value_targets = torch.tensor(value_targets, dtype=torch.float32).to(self.device)
+          if self.cuda:
+            state = torch.tensor(state, dtype=torch.float32).to(self.device)
+            policy_targets = torch.tensor(policy_targets, dtype=torch.float32).to(self.device)
+            value_targets = torch.tensor(value_targets, dtype=torch.float32).to(self.device)
+          else:
+            state = torch.tensor(state, dtype=torch.float32)
+            policy_targets = torch.tensor(policy_targets, dtype=torch.float32)
+            value_targets = torch.tensor(value_targets, dtype=torch.float32)
 
           out_policy, out_value = self.model.forward(state)
 

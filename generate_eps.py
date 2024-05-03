@@ -38,13 +38,13 @@ print("Loading pretrained model")
 state_dict = torch.load(args.model_file)
 model.load_state_dict(state_dict)
 
-mcts = MCTs_RL(othello, args.search, model, device)
+mcts = MCTs_RL(othello, args.search, model, device, cuda)
 
 optimizer = torch.optim.Adam(model.parameters(), lr = args.lr)
 
 BASE_DIR = os.getcwd()
 
-LaylaZero = AlphaZero(GAME = othello, model = model, device = device, optimizer = optimizer, num_iteration = args.iterations, play_iteration = args.self_play, epochs = args.epochs, batch_size = args.BatchSize, num_simulation = args.search)
+LaylaZero = AlphaZero(GAME = othello, model = model, device = device, cuda = cuda, optimizer = optimizer, num_iteration = args.iterations, play_iteration = args.self_play, epochs = args.epochs, batch_size = args.BatchSize, num_simulation = args.search)
 memory = LaylaZero.generateEPS()
 
 state, policy_targets, value_targets = zip(*memory)
