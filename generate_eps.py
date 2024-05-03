@@ -47,11 +47,11 @@ optimizer = torch.optim.Adam(model.parameters(), lr = args.lr)
 BASE_DIR = os.getcwd()
 
 LaylaZero = AlphaZero(GAME = othello, model = model, device = device, optimizer = optimizer, num_iteration = args.iterations, play_iteration = args.self_play, epochs = args.epochs, batch_size = args.BatchSize, num_simulation = args.search)
-poly, valy = LaylaZero.learn()
+memory = LaylaZero.generateEPS()
 
 # Create the new folder
 directory = os.path.join(BASE_DIR, "results")
 os.makedirs(directory, exist_ok=True)
 
 # Save NumPy arrays with specified directory
-np.save(os.path.join(directory, 'poly_loss.npy'), np.array(poly))
+np.save(os.path.join(directory, 'data_v0.npy'), np.array(memory))
