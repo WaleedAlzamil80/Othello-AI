@@ -58,3 +58,5 @@ os.makedirs(directory, exist_ok=True)
 np.save(os.path.join(directory, 'state_v0.npy'), np.array(state))
 np.save(os.path.join(directory, 'policy_v0.npy'), np.array(policy_targets))
 np.save(os.path.join(directory, 'value_v0.npy'), np.array(value_targets))
+
+print("----------------------------- Finished -----------------------------")
