@@ -47,9 +47,14 @@ BASE_DIR = os.getcwd()
 LaylaZero = AlphaZero(GAME = othello, model = model, device = device, optimizer = optimizer, num_iteration = args.iterations, play_iteration = args.self_play, epochs = args.epochs, batch_size = args.BatchSize, num_simulation = args.search)
 memory = LaylaZero.generateEPS()
 
+state, policy_targets, value_targets = zip(*memory)
+state, policy_targets, value_targets = np.array(state), np.array(policy_targets), np.array(value_targets).reshape(-1, 1)
+
 # Create the new folder
 directory = os.path.join(BASE_DIR, "results")
 os.makedirs(directory, exist_ok=True)
 
 # Save NumPy arrays with specified directory
-np.save(os.path.join(directory, 'data_v0.npy'), np.array(memory))
+np.save(os.path.join(directory, 'state_v0.npy'), np.array(state))
+np.save(os.path.join(directory, 'policy_v0.npy'), np.array(policy_targets))
+np.save(os.path.join(directory, 'value_v0.npy'), np.array(value_targets))
