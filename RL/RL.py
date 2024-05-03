@@ -62,6 +62,12 @@ class AlphaZero:
 
     return pol, val
 
+  def generateEPS(self):
+    for playiter in range(self.play_iteration):
+        print(f"Play iteration {playiter + 1} Started")
+        memory += self.selfPlay()
+    return memory
+
 
   def train(self, memory):
       random.shuffle(memory)

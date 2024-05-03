@@ -26,6 +26,7 @@ parser.add_argument("--epochs", type=int, default=5, help="Epochs")
 parser.add_argument("--self_play", type=int, default=500, help="Number of Games the model play before training")
 parser.add_argument("--iterations", type=int, default=5, help="Number of iteration the model play against  itself before training")
 parser.add_argument("--lr", type=float, default=0.001, help="Learning rate used while training")
+parser.add_argument("--lr", type=float, default=0.001, help="Learning rate used while training")
 parser.add_argument("--model_file", type=str, default="None", help="Pretrained models")
 
 args = parser.parse_args()
@@ -35,6 +36,7 @@ game = OthelloGAME()
 model = ResNet(args.NB, args.BatchSize)
 
 if args.model_file != "None":
+    print("Loading pretrained model")
     state_dict = torch.load(args.model_file)
     model.load_state_dict(state_dict)
 
@@ -53,10 +55,3 @@ os.makedirs(directory, exist_ok=True)
 
 # Save NumPy arrays with specified directory
 np.save(os.path.join(directory, 'poly_loss.npy'), np.array(poly))
-np.save(os.path.join(directory, 'value_loss.npy'), np.array(valy))
-
-# Specify the file name for saving the model
-model_file = os.path.join(directory, 'model.pt')
-
-# Save the model to the specified directory
-torch.save(model.state_dict(), model_file)
