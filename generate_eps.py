@@ -35,7 +35,11 @@ game = OthelloGAME()
 model = ResNet(args.NB, args.BatchSize)
 
 print("Loading pretrained model")
-state_dict = torch.load(args.model_file)
+if cuda:
+    state_dict = torch.load(args.model_file)
+else:
+    state_dict = torch.load(args.model_file, map_location = torch.device('cpu'))
+
 model.load_state_dict(state_dict)
 
 mcts = MCTs_RL(othello, args.search, model, device, cuda)
