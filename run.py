@@ -26,7 +26,7 @@ parser.add_argument("--epochs", type=int, default=5, help="Epochs")
 parser.add_argument("--self_play", type=int, default=500, help="Number of Games the model play before training")
 parser.add_argument("--iterations", type=int, default=5, help="Number of iteration the model play against  itself before training")
 parser.add_argument("--lr", type=float, default=0.001, help="Learning rate used while training")
-parser.add_argument("--model_file", type=str, default="None", help="Pretrained models")
+parser.add_argument("--model_file", type=str, default="./Othello-AI/RL/SavedModels/model.pt", help="Pretrained models")
 
 args = parser.parse_args()
 
