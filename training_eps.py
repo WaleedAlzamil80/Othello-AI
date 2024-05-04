@@ -24,7 +24,7 @@ parser.add_argument("--BatchSize", type=int, default=128, help="Batch Size")
 parser.add_argument("--epochs", type=int, default=5, help="Epochs")
 parser.add_argument("--lr", type=float, default=0.001, help="Learning rate used while training")
 parser.add_argument("--model_file", type=str, default="./Othello-AI/RL/SavedModels/model.pt", help="Pretrained models")
-parser.add_argument("--data_path", type=str, default="./Othello-AI/RL/DataGenerated/iteration00", help="Pretrained models")
+parser.add_argument("--data_path", type=str, default="./Othello-AI/RL/DataGenerated/iteration_00", help="Pretrained models")
 
 args = parser.parse_args()
 
