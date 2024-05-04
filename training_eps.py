@@ -66,7 +66,7 @@ for epoch in range(args.epochs):
 
         out_policy, out_value = model.forward(state)
 
-        policy_loss = F.cross_entropy(out_policy, policy)
+        policy_loss = F.cross_entropy(policy, out_policy)
         value_loss = F.mse_loss(out_value, value)
         loss = policy_loss + value_loss
 
