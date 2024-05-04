@@ -32,7 +32,7 @@ args = parser.parse_args()
 
 othello = OthelloGame()
 game = OthelloGAME()
-model = ResNet(args.NB, args.BatchSize)
+model = ResNet(args.NB, args.NH)
 
 print("Loading pretrained model")
 if cuda:

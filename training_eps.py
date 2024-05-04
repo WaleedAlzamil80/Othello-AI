@@ -28,7 +28,7 @@ parser.add_argument("--data_path", type=str, default="./Othello-AI/RL/DataGenera
 
 args = parser.parse_args()
 
-model = ResNet(args.NB, args.BatchSize).to(device)
+model = ResNet(args.NB, args.NH).to(device)
 
 print("Loading pretrained model to ", device)
 state_dict = torch.load(args.model_file, map_location = device)
