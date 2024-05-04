@@ -69,6 +69,7 @@ This repository implements various artificial intelligence (AI) algorithms for t
 | --search         | The number of simulations used for searching and exploring the game space during inference. Default: 1000        |
 
 4. **Actor-Critic (Reinforcement Learning)**:
+
 *Over View*
 - An approach from Reinforcement Learning (RL) where two neural networks work together.
 - The Actor network predicts the best move for the AI in a given state.
