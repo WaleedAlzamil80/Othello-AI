@@ -15,6 +15,9 @@ BOARD_SIZE_PIXELS = HEIGHT - 3 * MARGIN - TOP_BAR_HEIGHT
 BOARD_START_Y = 2 * MARGIN + TOP_BAR_HEIGHT
 BOARD_START_X = (WIDTH-BOARD_SIZE_PIXELS)/2
 
+SCREEN = pygame.display.set_mode((800, 720))
+BG = pygame.image.load("assets/Background.png")
+
 class Colors:
     BACKGROUND = (35, 35, 35)
     TOP_BAR = (50, 50, 50)
