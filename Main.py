@@ -3,6 +3,7 @@ from Board import Board
 from Constants import *
 from GameController import GameController
 from Button import Button
+from Minmax import Minmax
 
 first_player = ""
 first_player_diff = ""
@@ -20,10 +21,21 @@ def play():
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 GameController.click_action(board)
+        if(board.current_player == 1):
+            print("first player" + first_player)
+            if(first_player == PLAYER_TYPE_MINMAX):
+                row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = True)
+                board.make_move(row , col)
+            if(first_player == PLAYER_TYPE_MONTE_CARLO):
+                pass #here we should call montecarlo algorithm
+        elif (board.current_player == -1):
+            print("second_player" + second_player)
+            if(second_player == PLAYER_TYPE_MINMAX):
+                row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = True)
+                board.make_move(row , col)
+            if(second_player == PLAYER_TYPE_MONTE_CARLO):
+                pass #here we should call montecarlo algorithm
         pygame.display.flip()
-
-def main():
-    play()
 
 def get_font(size): # Returns Press-Start-2P in the desired size
     return pygame.font.Font(None, size)
@@ -105,6 +117,8 @@ def mode_menu(player_num):
                 pygame.quit()
                 sys.exit()
             #mouse click
+            
+            global first_player, second_player
             if event.type == pygame.MOUSEBUTTONDOWN:
                 #play button click
                 if MINMAX_BUTTON.checkForInput(MENU_MOUSE_POS):
@@ -189,5 +203,8 @@ def difficulty_menu(player_num):
                         second_player_diff = PLAYER_DIFFICULTY_HARD
                         play()
         pygame.display.update()    
+
+def options():
+    pass
 
 main_menu()

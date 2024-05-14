@@ -4,10 +4,29 @@ import copy
 
 class Minmax:
 
+    def get_best_move(board, depth, alpha_beta = False):
+        best_move = None
+        max_eval = float('-inf')
+        valid_moves = board.get_valid_moves()
+        previous_board = copy.deepcopy(board.board)
+        for move in valid_moves:
+            board.make_move(*move)
+            if alpha_beta:
+                eval = Minmax.minimax_alpha_beta(depth - 1, float('-inf'), float('inf'), False, board)
+            else:
+                eval = Minmax.minimax(depth - 1, False)
+            board.board = copy.deepcopy(previous_board)
+
+            if eval > max_eval:
+                max_eval = eval
+                best_move = move
+
+        return best_move
+
     def minimax_alpha_beta(depth, alpha, beta, maximizing_player, board):
         if depth == 0:
             board.current_player *= -1
-            return Minmax.evaluate_heuristic()
+            return Minmax.evaluate_heuristic(board)
 
         valid_moves = board.get_valid_moves()
         if maximizing_player:
