@@ -89,3 +89,9 @@ class Board:
         # Check if game is over (no valid moves for either player)
         return False  # Placeholder
     
+    def white_score(self):
+        return str(np.sum(self.board == -1))
+    
+    def black_score(self):
+        return str(np.sum(self.board == 1))
+    
