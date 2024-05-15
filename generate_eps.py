@@ -31,7 +31,7 @@ parser.add_argument("--model_file", type=str, default="./Othello-AI/RL/SavedMode
 args = parser.parse_args()
 
 othello = OthelloGame()
-game = OthelloGAME()
+game = OthelloGAME(othello)
 model = ResNet(args.NB, args.NH)
 
 print("Loading pretrained model")
