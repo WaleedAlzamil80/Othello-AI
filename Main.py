@@ -23,17 +23,21 @@ def play():
                 GameController.click_action(board)
         if(board.current_player == 1):
             print("first player" + first_player)
-            if(first_player == PLAYER_TYPE_MINMAX):
+            if(len(board.get_valid_moves()) == 0):
+                board.current_player *= -1
+            elif(first_player == PLAYER_TYPE_MINMAX):
                 row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = True)
                 board.make_move(row , col)
-            if(first_player == PLAYER_TYPE_MONTE_CARLO):
+            elif(first_player == PLAYER_TYPE_MONTE_CARLO):
                 pass #here we should call montecarlo algorithm
         elif (board.current_player == -1):
             print("second_player" + second_player)
-            if(second_player == PLAYER_TYPE_MINMAX):
+            if(len(board.get_valid_moves()) == 0):
+                board.current_player *= -1
+            elif(second_player == PLAYER_TYPE_MINMAX):
                 row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = True)
                 board.make_move(row , col)
-            if(second_player == PLAYER_TYPE_MONTE_CARLO):
+            elif(second_player == PLAYER_TYPE_MONTE_CARLO):
                 pass #here we should call montecarlo algorithm
         pygame.display.flip()
 

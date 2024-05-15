@@ -7,10 +7,10 @@ class GameController:
         
         
     def draw_top_bar(board):
-        pygame.draw.rect(
-            WIN, Colors.TOP_BAR, ((BOARD_START_X, MARGIN, BOARD_SIZE_PIXELS, TOP_BAR_HEIGHT)))
         square_size = BOARD_SIZE_PIXELS/board.board_size
         radius = 0.8 * square_size // 2
+        pygame.draw.rect(
+            WIN, Colors.TOP_BAR, ((BOARD_START_X, MARGIN, BOARD_SIZE_PIXELS, TOP_BAR_HEIGHT)), border_radius=int(radius))
 
         white_center = (BOARD_START_X + BOARD_SIZE_PIXELS * 0.1, MARGIN + TOP_BAR_HEIGHT//2)
         pygame.draw.circle(WIN, (255, 255, 255), white_center, radius)
@@ -21,8 +21,14 @@ class GameController:
         white_score = pygame.font.Font(None, 25).render(board.white_score(), True, "#FFFFFF")
         WIN.blit(white_score, white_score.get_rect(center=(white_center[0]+radius+MARGIN,white_center[1])))
 
-        black_score = pygame.font.Font(None, 25).render(board.black_score(), True, "#FFFFFF")
-        WIN.blit(black_score, white_score.get_rect(center=(black_center[0]-radius-MARGIN,black_center[1])))
+        black_score = pygame.font.Font(None, 25).render(board.black_score(), True, "#000000")
+        WIN.blit(black_score, black_score.get_rect(center=(black_center[0]-radius-MARGIN,black_center[1])))
+
+        turn_text = "BLACK TURN" if board.current_player ==1 else "WHITE TURN"
+        turn_text = pygame.font.Font(None, 25).render(turn_text,\
+                    True, "#000000" if board.current_player ==1 else "#FFFFFF")
+        turn_center = (BOARD_START_X+BOARD_SIZE_PIXELS//2, MARGIN + TOP_BAR_HEIGHT//2)
+        WIN.blit(turn_text, turn_text.get_rect(center=turn_center))
 
     def draw_game_board(board):
         square_size = BOARD_SIZE_PIXELS/board.board_size
