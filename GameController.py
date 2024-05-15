@@ -18,15 +18,22 @@ class GameController:
         black_center = (BOARD_START_X + BOARD_SIZE_PIXELS * 0.9, MARGIN + TOP_BAR_HEIGHT//2)
         pygame.draw.circle(WIN, (0, 0, 0), black_center, radius)
 
-        white_score = pygame.font.Font(None, 25).render(board.white_score(), True, "#FFFFFF")
+        white_score = pygame.font.Font(None, 25).render(str(board.white_score()), True, "#FFFFFF")
         WIN.blit(white_score, white_score.get_rect(center=(white_center[0]+radius+MARGIN,white_center[1])))
 
-        black_score = pygame.font.Font(None, 25).render(board.black_score(), True, "#000000")
+        black_score = pygame.font.Font(None, 25).render(str(board.black_score()), True, "#000000")
         WIN.blit(black_score, black_score.get_rect(center=(black_center[0]-radius-MARGIN,black_center[1])))
-
-        turn_text = "BLACK TURN" if board.current_player ==1 else "WHITE TURN"
-        turn_text = pygame.font.Font(None, 25).render(turn_text,\
-                    True, "#000000" if board.current_player ==1 else "#FFFFFF")
+        if board.is_done():
+            winner = -1 if board.white_score() > board.black_score() else \
+                (0 if board.white_score() == board.black_score() else 1)
+            turn_text = "WHITE WINS" if winner == -1 else \
+                ("D R A W" if winner ==0 else "BLACK WINS")
+            turn_text = pygame.font.Font(None, 25).render(turn_text,\
+            True, "#FFFFFF" if winner == -1 else ("#009163" if winner ==0 else "#000000"))
+        else:
+            turn_text = "BLACK TURN" if board.current_player ==1 else "WHITE TURN"
+            turn_text = pygame.font.Font(None, 25).render(turn_text,\
+                        True, "#000000" if board.current_player ==1 else "#FFFFFF")
         turn_center = (BOARD_START_X+BOARD_SIZE_PIXELS//2, MARGIN + TOP_BAR_HEIGHT//2)
         WIN.blit(turn_text, turn_text.get_rect(center=turn_center))
 

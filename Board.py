@@ -86,12 +86,19 @@ class Board:
             r, c = r + dr, c + dc
 
     def is_done(self):
-        # Check if game is over (no valid moves for either player)
-        return False  # Placeholder
+        if len(self.get_valid_moves()) !=0:
+            return False
+        else:
+            self.current_player *= -1
+            if len(self.get_valid_moves()) !=0:
+                self.current_player *= -1
+                return False 
+        self.current_player *= -1
+        return True
     
     def white_score(self):
-        return str(np.sum(self.board == -1))
+        return np.sum(self.board == -1)
     
     def black_score(self):
-        return str(np.sum(self.board == 1))
+        return np.sum(self.board == 1)
     

@@ -16,17 +16,24 @@ def play():
         WIN.fill(Colors.BACKGROUND)
         CLOCK.tick(FPS)
         GameController.draw_game(board)
+        pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                GameController.click_action(board)
-        if(board.current_player == 1):
+                if ((board.current_player == 1 and first_player == PLAYER_TYPE_HUMAN)
+                     or (board.current_player == -1 and second_player == PLAYER_TYPE_HUMAN)):
+                    GameController.click_action(board)
+        
+        if board.is_done(): 
+            print('done')
+        elif(board.current_player == 1):
             print("first player" + first_player)
             if(len(board.get_valid_moves()) == 0):
                 board.current_player *= -1
             elif(first_player == PLAYER_TYPE_MINMAX):
                 row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = True)
+                if(row == None): print('hello');continue
                 board.make_move(row , col)
             elif(first_player == PLAYER_TYPE_MONTE_CARLO):
                 pass #here we should call montecarlo algorithm
@@ -39,7 +46,6 @@ def play():
                 board.make_move(row , col)
             elif(second_player == PLAYER_TYPE_MONTE_CARLO):
                 pass #here we should call montecarlo algorithm
-        pygame.display.flip()
 
 def get_font(size): # Returns Press-Start-2P in the desired size
     return pygame.font.Font(None, size)
