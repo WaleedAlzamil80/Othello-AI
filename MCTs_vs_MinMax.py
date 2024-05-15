@@ -9,7 +9,7 @@ parser.add_argument("--search", type=int, default=1000, help="Searching and expl
 args = parser.parse_args()
 
 othello = OthelloGame()
-game = OthelloGAME()
+game = OthelloGAME(othello)
 mcts = MCTs(othello, args.search)
 
 game.MinMax_vs_MCTs(mcts = mcts)
