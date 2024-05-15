@@ -13,10 +13,22 @@ second_player_diff = ""
 def play():
     board = Board()
     while True:
-        WIN.fill(Colors.BACKGROUND)
+        SCREEN.fill(Colors.BACKGROUND)
         CLOCK.tick(FPS)
         GameController.draw_game(board)
+        button_height = SMALL_BUTTON_IMAGE.get_rect().height
+        pause_button = Button(image=SMALL_BUTTON_IMAGE, pos=(BOARD_BUTTON_CENTER, MARGIN + button_height), 
+                            text_input="PAUSE", font=get_font(30), base_color="#000000", hovering_color="White")
+        restart_button = Button(image=SMALL_BUTTON_IMAGE, pos=(BOARD_BUTTON_CENTER, 2 * ( MARGIN + button_height)), 
+                            text_input="RESTART", font=get_font(30), base_color="#000000", hovering_color="White")
+        main_menu_button = Button(image=SMALL_BUTTON_IMAGE, pos=(BOARD_BUTTON_CENTER, 3 * ( MARGIN + button_height)), 
+                            text_input="MAIN_MENU", font=get_font(30), base_color="#000000", hovering_color="White")
+        for button in [pause_button, restart_button, main_menu_button]:
+            button.changeColor(pygame.mouse.get_pos())
+            button.update(SCREEN)
+        
         pygame.display.flip()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -61,15 +73,16 @@ def main_menu():
 
         PLAY_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 250), 
                             text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        OPTIONS_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 400), 
-                            text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        QUIT_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 550), 
+        QUIT_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 400), 
                             text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        # OPTIONS_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 400), 
+        #                     text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
 
         SCREEN.blit(MENU_TEXT, MENU_RECT)
 
         #hovering
-        for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
+        # for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
+        for button in [PLAY_BUTTON, QUIT_BUTTON]:
             button.changeColor(MENU_MOUSE_POS)
             button.update(SCREEN)
         
@@ -84,8 +97,8 @@ def main_menu():
                 if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
                     mode_menu(1)
                 #options button click
-                if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    options()
+                # if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
+                #     options()
                 #quit button click
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
                     pygame.quit()
@@ -108,9 +121,9 @@ def mode_menu(player_num):
 
         HUMAN_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 250), 
                             text_input="Human", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        MINMAX_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 400), 
+        MINMAX_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 380), 
                             text_input="MINMAX", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        CARLO_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 550), 
+        CARLO_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 510), 
                             text_input="Monte Carlo", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
                             
 
@@ -168,9 +181,9 @@ def difficulty_menu(player_num):
 
         EASY_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 250), 
                             text_input="Easy", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        MEDIUM_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 400), 
+        MEDIUM_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 380), 
                             text_input="Medium", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        HARD_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 550), 
+        HARD_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 510), 
                             text_input="Hard", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
                             
 
