@@ -10,6 +10,48 @@ first_player_diff = ""
 second_player = ""
 second_player_diff = ""
 
+def pause(board):
+    while True:
+        SCREEN.fill(Colors.BACKGROUND)
+        CLOCK.tick(FPS)
+        GameController.draw_game(board)
+        button_height = SMALL_BUTTON_IMAGE.get_rect().height
+        resume_button = Button(image=SMALL_BUTTON_IMAGE, pos=(BOARD_BUTTON_CENTER, MARGIN + button_height), 
+                            text_input="RESUME", font=get_font(30), base_color="#000000", hovering_color="White")
+        resume_button.changeColor(pygame.mouse.get_pos())
+        resume_button.update(SCREEN)
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if resume_button.checkForInput(pygame.mouse.get_pos()):
+                    return
+
+def game_end_screen(board):
+    while True:
+        SCREEN.fill(Colors.BACKGROUND)
+        CLOCK.tick(FPS)
+        GameController.draw_game(board)
+        button_height = SMALL_BUTTON_IMAGE.get_rect().height
+        restart_button = Button(image=SMALL_BUTTON_IMAGE, pos=(BOARD_BUTTON_CENTER,MARGIN + button_height), 
+                            text_input="RESTART", font=get_font(30), base_color="#000000", hovering_color="White")
+        main_menu_button = Button(image=SMALL_BUTTON_IMAGE, pos=(BOARD_BUTTON_CENTER, 2 * ( MARGIN + button_height)), 
+                            text_input="MAIN_MENU", font=get_font(30), base_color="#000000", hovering_color="White")
+        for button in [restart_button, main_menu_button]:
+            button.changeColor(pygame.mouse.get_pos())
+            button.update(SCREEN)
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if main_menu_button.checkForInput(pygame.mouse.get_pos()):
+                    return 0
+                elif restart_button.checkForInput(pygame.mouse.get_pos()):
+                    return 1
+                    
+
 def play():
     board = Board()
     while True:
@@ -33,19 +75,28 @@ def play():
             if event.type == pygame.QUIT:
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if ((board.current_player == 1 and first_player == PLAYER_TYPE_HUMAN)
+                if pause_button.checkForInput(pygame.mouse.get_pos()):
+                    pause(board)
+                elif restart_button.checkForInput(pygame.mouse.get_pos()):
+                    board = Board()
+                elif main_menu_button.checkForInput(pygame.mouse.get_pos()):
+                    return
+                elif ((board.current_player == 1 and first_player == PLAYER_TYPE_HUMAN)
                      or (board.current_player == -1 and second_player == PLAYER_TYPE_HUMAN)):
                     GameController.click_action(board)
         
         if board.is_done(): 
-            print('done')
+            state = game_end_screen(board) 
+            if state == 1:
+                board = Board()
+            elif state == 0:
+                return
         elif(board.current_player == 1):
             print("first player" + first_player)
             if(len(board.get_valid_moves()) == 0):
                 board.current_player *= -1
             elif(first_player == PLAYER_TYPE_MINMAX):
                 row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = True)
-                if(row == None): print('hello');continue
                 board.make_move(row , col)
             elif(first_player == PLAYER_TYPE_MONTE_CARLO):
                 pass #here we should call montecarlo algorithm
@@ -148,25 +199,31 @@ def mode_menu(player_num):
                     if player_num == 1:
                         first_player = PLAYER_TYPE_MINMAX
                         difficulty_menu(1)
+                        return
                     else:
                         second_player = PLAYER_TYPE_MINMAX
                         difficulty_menu(2)
+                        return
                 #options button click
                 if HUMAN_BUTTON.checkForInput(MENU_MOUSE_POS):
                     if player_num == 1:
                         first_player = PLAYER_TYPE_HUMAN
                         mode_menu(2)
+                        return
                     else:
                         second_player = PLAYER_TYPE_HUMAN
                         play()
+                        return
                 #quit button click
                 if CARLO_BUTTON.checkForInput(MENU_MOUSE_POS):
                     if player_num == 1:
                         first_player = PLAYER_TYPE_MONTE_CARLO
                         difficulty_menu(1)
+                        return
                     else:
                         second_player = PLAYER_TYPE_MONTE_CARLO
                         difficulty_menu(2)
+                        return
 
         pygame.display.update()    
 
@@ -200,31 +257,38 @@ def difficulty_menu(player_num):
                 pygame.quit()
                 sys.exit()
             #mouse click
+            global first_player_diff, second_player_diff
             if event.type == pygame.MOUSEBUTTONDOWN:
                 #play button click
                 if EASY_BUTTON.checkForInput(MENU_MOUSE_POS):
                     if player_num == 1:
                         first_player_diff = PLAYER_DIFFICULTY_EASY
                         mode_menu(2)
+                        return
                     else:
                         second_player_diff = PLAYER_DIFFICULTY_EASY
                         play()
+                        return
                 #options button click
                 if MEDIUM_BUTTON.checkForInput(MENU_MOUSE_POS):
                     if player_num == 1:
                         first_player_diff = PLAYER_DIFFICULTY_MEDIUM
                         mode_menu(2)
+                        return
                     else:
                         second_player_diff = PLAYER_DIFFICULTY_MEDIUM
                         play()
+                        return
                 #quit button click
                 if HARD_BUTTON.checkForInput(MENU_MOUSE_POS):
                     if player_num == 1:
                         first_player_diff = PLAYER_DIFFICULTY_HARD
                         mode_menu(2)
+                        return
                     else:
                         second_player_diff = PLAYER_DIFFICULTY_HARD
                         play()
+                        return
         pygame.display.update()    
 
 def options():
