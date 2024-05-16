@@ -114,10 +114,20 @@ In case it takes too much reduce the number of games (self_play)
 
 3. The results will be found in the `results` folder then you can download the 3 numpy arrays corresponding to (State, Policy, Value)
 
-### How to Train
+### How to Train with your custom dataset?
+```shell
+python training_eps.py --data_path ./path/to/custom_data --BatchSize 32 --lr 0.0001 --epochs 10
+```
+
+### How to learn?
+```shell
+python run.py --BatchSize 32 --lr 0.0001 --epochs 10 --self_play 1000 --search 1500 --iterations 10
+```
 
 ## Explian MCTs
+For more detailed documentation, see the [MCTs/README.md](MCTs/README.md).
 
 ## Explain Actor-Critic algorithm (RL)
+For more detailed documentation, see the [RL/README.md](RL/README.md).
 
 ## Quick Start (Continued in next section...)
