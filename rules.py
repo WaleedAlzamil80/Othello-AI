@@ -50,7 +50,8 @@ class Rules:
 
     def make_move(self, state, player, row, col):
         if not self.is_valid_move(state, player, row, col):
-            raise ValueError('Invalid move')
+            print('Invalid move')
+            return
         state[row, col] = player
         state = self._flip_pieces(state, player, row, col)
         r, t = self.value_termination(state)

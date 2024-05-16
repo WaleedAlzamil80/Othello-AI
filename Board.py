@@ -19,6 +19,8 @@ class Board:
         return self.rules.get_valid_moves(self.board, self.current_player)
 
     def make_move(self, row, col):
+        if not self.rules.is_valid_move(self.board, self.current_player, row, col):
+            return
         self.board, _, _ = self.rules.make_move(self.board, self.current_player, row, col)
         self.current_player *= -1
 

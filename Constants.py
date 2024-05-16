@@ -9,7 +9,7 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Othello')
 CLOCK = pygame.time.Clock()
 BG = pygame.image.load("assets/Background.png")
-SMALL_BUTTON_IMAGE = pygame.image.load("assets/SmallGreenRect.png")
+SMALL_BUTTON_IMAGE = pygame.image.load("assets/SmallGreyRect.png")
 
 
 MARGIN = 0.04 * HEIGHT
@@ -27,8 +27,9 @@ class Colors:
 
 
 PLAYER_TYPE_HUMAN = "human"
-PLAYER_TYPE_MONTE_CARLO = "carlo"
 PLAYER_TYPE_MINMAX = "minmax"
+PLAYER_TYPE_MONTE_CARLO = "carlo"
+PLAYER_TYPE_RL = "RL"
 
 PLAYER_DIFFICULTY_EASY = "easy"
 PLAYER_DIFFICULTY_MEDIUM = "medium"

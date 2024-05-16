@@ -2,6 +2,8 @@ import time
 import numpy as np
 import copy
 
+from Constants import PLAYER_DIFFICULTY_EASY, PLAYER_DIFFICULTY_HARD, PLAYER_DIFFICULTY_MEDIUM
+
 class Minmax:
 
     start_time = 0
@@ -41,14 +43,12 @@ class Minmax:
         return best_move
 
     def minimax_alpha_beta_time_constrain(depth, alpha, beta, maximizing_player, board):
-
         if (time.time() - Minmax.start_time) > Minmax.time_limit:
             board.current_player *= -1
             return 0, True
 
         valid_moves = board.get_valid_moves()
         if depth == 0 or len(valid_moves) == 0:
-            board.current_player *= -1
             return Minmax.evaluate_heuristic(board), False
 
         if maximizing_player:
@@ -209,5 +209,10 @@ class Minmax:
             max_player_stability = stability_value(board, board.current_player)
             min_player_stability = stability_value(board, -board.current_player)
             return 100 * (max_player_stability - min_player_stability) / (max_player_stability + min_player_stability + 1)
-
+        
+        # if diff == PLAYER_DIFFICULTY_EASY:
+        #     return coin_parity() + mobility()
+        # if diff == PLAYER_DIFFICULTY_MEDIUM:
+        #     return coin_parity() + mobility() + corners_captured()
+        # if diff == PLAYER_DIFFICULTY_HARD:
         return coin_parity() + mobility() + corners_captured() + stability(board)

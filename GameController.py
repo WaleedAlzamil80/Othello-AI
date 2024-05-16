@@ -30,6 +30,7 @@ class GameController:
                 ("D R A W" if winner ==0 else "BLACK WINS")
             turn_text = pygame.font.Font(None, 25).render(turn_text,\
             True, "#FFFFFF" if winner == -1 else ("#009164" if winner ==0 else "#000000"))
+            SCREEN.blit(pygame.image.load("assets/Winner.png"), (BOARD_BUTTON_CENTER - 75, HEIGHT - 300))
         else:
             turn_text = "BLACK TURN" if board.current_player ==1 else "WHITE TURN"
             turn_text = pygame.font.Font(None, 25).render(turn_text,\
