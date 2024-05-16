@@ -2,12 +2,11 @@ import os
 import copy
 import numpy as np
 import argparse
-
 from RL.MCTs_Actor_Critic import *
-from RL.OthelloGame import *
 from Othello_Game import *
 from RL.Nets import *
 from RL.RL import *
+from rules import Rules
 
 cuda = True if torch.cuda.is_available() else False
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -30,7 +29,7 @@ parser.add_argument("--model_file", type=str, default="./Othello-AI/RL/SavedMode
 
 args = parser.parse_args()
 
-othello = OthelloGame()
+othello = Rules()
 game = OthelloGAME(othello)
 model = ResNet(args.NB, args.NH)
 

@@ -2,9 +2,9 @@ import os
 import copy
 import numpy as np
 import argparse
-
+from rules import Rules
 from RL.MCTs_Actor_Critic import *
-from RL.OthelloGame import *
+
 from Othello_Game import *
 from RL.Nets import *
 from RL.RL import *
@@ -30,7 +30,7 @@ parser.add_argument("--model_file", type=str, default="./Othello-AI/RL/SavedMode
 
 args = parser.parse_args()
 
-othello = OthelloGame()
+othello = Rules()
 game = OthelloGAME()
 model = ResNet(args.NB, args.BatchSize)
 

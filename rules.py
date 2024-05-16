@@ -1,6 +1,6 @@
-import numpy as np 
+import numpy as np
 
-class OthelloGame:
+class Rules:
     def __init__(self):
         self.board_size = 8
         self.action_space = self.board_size ** 2
@@ -26,7 +26,7 @@ class OthelloGame:
         opponent = -player
         r, c = row + dr, col + dc
         if not (0 <= r < self.board_size and 0 <= c < self.board_size):
-            return False
+            return False 
 
         if state[r, c] != opponent:
             return False

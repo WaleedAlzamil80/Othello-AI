@@ -4,6 +4,7 @@ from Constants import *
 from GameController import GameController
 from Button import Button
 from Minmax import Minmax
+from rules import Rules
 
 first_player = ""
 first_player_diff = ""
@@ -51,9 +52,9 @@ def game_end_screen(board):
                 elif restart_button.checkForInput(pygame.mouse.get_pos()):
                     return 1
                     
-
 def play():
-    board = Board()
+    rules = Rules()
+    board = Board(rules)
     while True:
         SCREEN.fill(Colors.BACKGROUND)
         CLOCK.tick(FPS)
@@ -68,7 +69,7 @@ def play():
         for button in [pause_button, restart_button, main_menu_button]:
             button.changeColor(pygame.mouse.get_pos())
             button.update(SCREEN)
-        
+
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -78,7 +79,7 @@ def play():
                 if pause_button.checkForInput(pygame.mouse.get_pos()):
                     pause(board)
                 elif restart_button.checkForInput(pygame.mouse.get_pos()):
-                    board = Board()
+                    board = Board(rules)
                 elif main_menu_button.checkForInput(pygame.mouse.get_pos()):
                     return
                 elif ((board.current_player == 1 and first_player == PLAYER_TYPE_HUMAN)
@@ -87,8 +88,8 @@ def play():
         
         if board.is_done(): 
             state = game_end_screen(board) 
-            if state == 1:
-                board = Board()
+            if state == 1: 
+                board = Board(rules)
             elif state == 0:
                 return
         elif(board.current_player == 1):
@@ -96,23 +97,23 @@ def play():
             if(len(board.get_valid_moves()) == 0):
                 board.current_player *= -1
             elif(first_player == PLAYER_TYPE_MINMAX):
-                row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = True)
+                row, col = Minmax.get_best_move(board= board, depth=5, alpha_beta = True, time_constrain = True) # modified
                 board.make_move(row , col)
             elif(first_player == PLAYER_TYPE_MONTE_CARLO):
-                pass #here we should call montecarlo algorithm
+                pass
         elif (board.current_player == -1):
             print("second_player" + second_player)
             if(len(board.get_valid_moves()) == 0):
                 board.current_player *= -1
             elif(second_player == PLAYER_TYPE_MINMAX):
-                row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = True)
+                row, col = Minmax.get_best_move(board= board, depth=2, alpha_beta = True)
                 board.make_move(row , col)
             elif(second_player == PLAYER_TYPE_MONTE_CARLO):
-                pass #here we should call montecarlo algorithm
+                pass
 
-def get_font(size): # Returns Press-Start-2P in the desired size
+def get_font(size):
     return pygame.font.Font(None, size)
-
+ 
 def main_menu():
     while True:
         SCREEN.blit(BG, (0, 0))

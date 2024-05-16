@@ -1,5 +1,5 @@
 from MCTs.MCTs import *
-from MCTs.OthelloGame_for_MCTs import *
+from rules import *
 from Othello_Game import *
 import argparse
 
@@ -8,7 +8,7 @@ parser.add_argument("--search", type=int, default=1000, help="Searching and expl
 
 args = parser.parse_args()
 
-othello = OthelloGame()
+othello = Rules()
 game = OthelloGAME(othello)
 mcts = MCTs(othello, args.search)
 

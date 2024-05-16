@@ -5,22 +5,30 @@ import copy
 class Minmax:
 
     start_time = 0
+    time_limit = 5
 
     def get_best_move(board, depth, alpha_beta = False, time_constrain = False):
         best_move = None
         max_eval = float('-inf')
         valid_moves = board.get_valid_moves()
         previous_board = copy.deepcopy(board.board)
+        Minmax.start_time = time.time()
         for move in valid_moves:
             print(move)
             board.make_move(*move)
             if alpha_beta:
                 if time_constrain:
-                  eval = Minmax.minimax_alpha_beta_time_constrain(float('-inf'), float('inf'), False, board, 1000)
-
+                  depth = 0
+                  while True:
+                    depth += 1
+                    x, con = Minmax.minimax_alpha_beta_time_constrain(depth, float('-inf'), float('inf'), False, board)
+                    if con:
+                        break
+                    eval = x
+                    print("Depth is : ", depth)
+                    print(eval)
                 else:
                   eval = Minmax.minimax_alpha_beta(depth - 1, float('-inf'), float('inf'), False, board)
-
             else:
                 eval = Minmax.minimax(depth - 1, False)
 
@@ -33,49 +41,48 @@ class Minmax:
         return best_move
 
     def minimax_alpha_beta_time_constrain(depth, alpha, beta, maximizing_player, board):
-        if depth == 1000:
-          Minmax.start_time = time.time()
 
-        if depth == 0:
+        if (time.time() - Minmax.start_time) > Minmax.time_limit:
             board.current_player *= -1
-            return Minmax.evaluate_heuristic(board)
+            return 0, True
 
         valid_moves = board.get_valid_moves()
+        if depth == 0 or len(valid_moves) == 0:
+            board.current_player *= -1
+            return Minmax.evaluate_heuristic(board), False
+
         if maximizing_player:
             max_eval = float('-inf')
             for move in valid_moves:
                 previous_board = copy.deepcopy(board.board)
                 board.make_move(*move)
-
-                if (time.time() - Minmax.start_time) < 10:
-                  eval = Minmax.minimax_alpha_beta(depth - 1, alpha, beta, False, board)
-                else:
-                  eval = Minmax.minimax_alpha_beta(0, alpha, beta, False, board)
-
+                eval, timed_out = Minmax.minimax_alpha_beta_time_constrain(depth - 1, alpha, beta, False, board)
                 board.board = previous_board
+                if timed_out:
+                    board.current_player *= -1
+                    return 0, True
                 max_eval = max(max_eval, eval)
                 alpha = max(alpha, eval)
                 if beta <= alpha:
                     break
             board.current_player *= -1
-            return max_eval
-
+            return max_eval, False
         else:
             min_eval = float('inf')
             for move in valid_moves:
                 previous_board = copy.deepcopy(board.board)
                 board.make_move(*move)
-                if (time.time() - Minmax.start_time) < 10:
-                  eval = Minmax.minimax_alpha_beta(depth - 1, alpha, beta, True, board)
-                else:
-                  eval = Minmax.minimax_alpha_beta(0, alpha, beta, True, board)
+                eval, timed_out = Minmax.minimax_alpha_beta_time_constrain(depth - 1, alpha, beta, True, board)
                 board.board = copy.deepcopy(previous_board)
+                if timed_out:
+                    board.current_player *= -1
+                    return 0, True
                 min_eval = min(min_eval, eval)
                 beta = min(beta, eval)
                 if beta <= alpha:
                     break
             board.current_player *= -1
-            return min_eval
+            return min_eval, False
 
     def minimax_alpha_beta(depth, alpha, beta, maximizing_player, board):
         valid_moves = board.get_valid_moves()
@@ -155,21 +162,21 @@ class Minmax:
         def corners_captured():
             maxCorners = 0
             minCorners = 0
-            if board[0][0] == 1:
+            if board.board[0][0] == 1:
                 maxCorners += 1
-            elif board[0][0] == -1:
+            elif board.board[0][0] == -1:
                 minCorners += 1
-            if board[0][7] == 1:
+            if board.board[0][7] == 1:
                 maxCorners += 1
-            elif board[0][7] == -1:
+            elif board.board[0][7] == -1:
                 minCorners += 1
-            if board[7][0] == 1:
+            if board.board[7][0] == 1:
                 maxCorners += 1
-            elif board[7][0] == -1:
+            elif board.board[7][0] == -1:
                 minCorners += 1
-            if board[7][7] == 1:
+            if board.board[7][7] == 1:
                 maxCorners += 1
-            elif board[7][7] == -1:
+            elif board.board[7][7] == -1:
                 minCorners += 1
             if maxCorners + minCorners != 0:
                 return 100.0 * (maxCorners - minCorners) / (maxCorners + minCorners)
