@@ -1,4 +1,4 @@
-import copy
+import copys
 import random
 import numpy as np
 
@@ -126,3 +126,8 @@ class MCTs:
             node.values_sum += value
             value *= -1
             node = node.parent
+
+    def action(self, state, player):
+        a = self.search(state, player)
+        ind = np.argmax(a)
+        return ind // 8, ind % 8

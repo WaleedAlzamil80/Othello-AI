@@ -73,7 +73,7 @@ class MCTs_RL:
                 node = node.select_child()
 
             value, is_terminal = self.game.value_termination(node.state)
-
+ 
             # Expansion and Simulation
             valid_moves = self.game.get_valid_moves(node.state, node.player)
             if (len(valid_moves) > 0) and (not is_terminal):
@@ -84,7 +84,7 @@ class MCTs_RL:
 
                 policy, value = self.model.predict(state)
                 valid_moves = self.game.get_valid_moves(node.state, node.player)
-                policy = policy.detach().cpu().numpy().reshape(-1)
+                policy = policy.detach().cpu().numpy().reshape(-1) # (1, 64) -> (64,)
                 value = value.detach().cpu().numpy()[0][0]
                 mask = np.zeros_like(policy)
                 for move in valid_moves:
@@ -112,3 +112,8 @@ class MCTs_RL:
             node.values_sum += value
             value *= -1
             node = node.parent
+
+    def action(self, state, player):
+        a = self.search(state, player)
+        ind = np.argmax(a)
+        return ind // 8, ind % 8
