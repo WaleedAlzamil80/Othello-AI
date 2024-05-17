@@ -49,26 +49,11 @@ class Minmax:
     
     def get_best_move(board, depth, alpha_beta = False):
         best_move = None
-        best_eval = float('-inf') if board.current_player == 1 else float('inf')
-        valid_moves = board.get_valid_moves()
-        previous_board = copy.deepcopy(board.board)
-        moveee = []
-        for move in valid_moves:
-            board.make_move(*move)
-            if alpha_beta:
-                eval = Minmax.minimax_alpha_beta(depth - 1, float('-inf'), float('inf'), board.current_player == 1, board)
-            else:
-                eval = Minmax.minimax(depth - 1, board.current_player == 1, board)
-            board.board = copy.deepcopy(previous_board)
-            board.current_player *= -1 
-            if ((board.current_player == -1 and eval < best_eval) or\
-                (board.current_player == 1 and eval > best_eval)):
-                best_eval = eval
-                best_move = move
-            moveee.append((move, eval))
+        if alpha_beta:
+            _, best_move = Minmax.minimax_alpha_beta(depth, float('-inf'), float('inf'), board.current_player == 1, board)
+        else:
+            _, best_move = Minmax.minimax(depth, board.current_player == 1, board)
         print("Depth is : ", depth)
-        print(moveee)
-        print(best_eval)
         return best_move
     
 
@@ -115,61 +100,73 @@ class Minmax:
         valid_moves = board.get_valid_moves()
         if depth == 0 or len(valid_moves)==0:
             Minmax.leafs_visited+=1
-            return Minmax.evaluate_heuristic(board)
+            return Minmax.evaluate_heuristic(board), ()
 
         if maximizing_player:
             max_eval = float('-inf')
+            max_move = None
             for move in valid_moves:
                 previous_board = copy.deepcopy(board.board)
                 board.make_move(*move)
-                eval = Minmax.minimax_alpha_beta(depth - 1, alpha, beta, False, board)
+                eval, _ = Minmax.minimax_alpha_beta(depth - 1, alpha, beta, False, board)
                 board.board = copy.deepcopy(previous_board)
                 board.current_player *= -1
-                max_eval = max(max_eval, eval)
+                if max_eval < eval:
+                    max_eval = eval
+                    max_move = move
                 alpha = max(alpha, eval)
                 if beta <= alpha:
                     break
-            return max_eval
+            return max_eval, max_move
         else:
             min_eval = float('inf')
+            min_move = None
             for move in valid_moves:
                 previous_board = copy.deepcopy(board.board)
                 board.make_move(*move)
-                eval = Minmax.minimax_alpha_beta(depth - 1, alpha, beta, True, board)
+                eval, _ = Minmax.minimax_alpha_beta(depth - 1, alpha, beta, True, board)
                 board.board = copy.deepcopy(previous_board)
                 board.current_player *= -1
-                min_eval = min(min_eval, eval)
+                if min_eval > eval:
+                    min_eval = eval
+                    min_move = move
                 beta = min(beta, eval)
                 if beta <= alpha:
                     break
-            return min_eval
+            return min_eval, min_move
 
     def minimax(depth, maximizing_player, board):
         valid_moves = board.get_valid_moves()
         if not depth or len(valid_moves)==0:
             Minmax.leafs_visited+=1
-            return Minmax.evaluate_heuristic(board)
+            return Minmax.evaluate_heuristic(board),()
 
         if maximizing_player:
             max_eval = float('-inf')
+            max_move = None
             for move in valid_moves:
                 previous_board = copy.deepcopy(board.board)
                 board.make_move(*move)
-                eval = Minmax.minimax(depth - 1, False, board)
-                max_eval = max(max_eval, eval)
+                eval, _ = Minmax.minimax(depth - 1, False, board)
+                if max_eval < eval:
+                    max_eval = eval
+                    max_move = move
                 board.board = copy.deepcopy(previous_board)
                 board.current_player *= -1
-            return max_eval
+            return max_eval, max_move
         else:
             min_eval = float('inf')
+            min_move = None
             for move in valid_moves:
                 previous_board = copy.deepcopy(board.board)
                 board.make_move(*move)
-                eval = Minmax.minimax(depth - 1, True, board)
-                min_eval = min(min_eval, eval)
+                eval, _ = Minmax.minimax(depth - 1, True, board)
+                if min_eval > eval:
+                    min_eval = eval
+                    min_move = move
                 board.board = copy.deepcopy(previous_board)
                 board.current_player *= -1
-            return min_eval
+            return min_eval, min_move
 
     def evaluate_heuristic(board):
         def coin_parity():

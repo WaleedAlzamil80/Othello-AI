@@ -189,19 +189,19 @@ def mode_menu(player_num):
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
-        Text = "Select First Player"
+        Text = "Select First Player (black)"
         if player_num == 2:
-            Text = "Select Second Player"
+            Text = "Select Second Player (white)"
 
-        MENU_TEXT = get_font(100).render(Text, True, "#b68f40")
+        MENU_TEXT = get_font(75).render(Text, True, "#b68f40")
         MENU_RECT = MENU_TEXT.get_rect(center=(400, 100))
 
         HUMAN_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 250), 
-                            text_input="Human", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+                            text_input="Human", font=get_font(65), base_color="#d7fcd4", hovering_color="White")
         MINMAX_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 380), 
-                            text_input="MINMAX", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+                            text_input="MINMAX", font=get_font(65), base_color="#d7fcd4", hovering_color="White")
         CARLO_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 510), 
-                            text_input="Monte Carlo", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+                            text_input="Monte Carlo", font=get_font(65), base_color="#d7fcd4", hovering_color="White")
         # RF_BUTTON = Button(image=pygame.image.load("assets/SmallRect.png"), pos=(600, 510), 
         #                     text_input="Reinforcement Learning", font=get_font(35), base_color="#d7fcd4", hovering_color="White")
                             
@@ -270,15 +270,15 @@ def difficulty_menu(player_num):
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
-        MENU_TEXT = get_font(100).render("Select Mode", True, "#b68f40")
+        MENU_TEXT = get_font(75).render("Select Difficulty", True, "#b68f40")
         MENU_RECT = MENU_TEXT.get_rect(center=(400, 100))
 
         EASY_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 250), 
-                            text_input="Easy", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+                            text_input="Easy", font=get_font(65), base_color="#d7fcd4", hovering_color="White")
         MEDIUM_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 380), 
-                            text_input="Medium", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+                            text_input="Medium", font=get_font(65), base_color="#d7fcd4", hovering_color="White")
         HARD_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 510), 
-                            text_input="Hard", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+                            text_input="Hard", font=get_font(65), base_color="#d7fcd4", hovering_color="White")
                             
 
         SCREEN.blit(MENU_TEXT, MENU_RECT)
