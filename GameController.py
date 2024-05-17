@@ -12,17 +12,17 @@ class GameController:
         pygame.draw.rect(
             SCREEN, Colors.TOP_BAR, ((BOARD_START_X, MARGIN, BOARD_SIZE_PIXELS, TOP_BAR_HEIGHT)), border_radius=int(radius))
 
-        white_center = (BOARD_START_X + BOARD_SIZE_PIXELS * 0.1, MARGIN + TOP_BAR_HEIGHT//2)
-        pygame.draw.circle(SCREEN, (255, 255, 255), white_center, radius)
-        
-        black_center = (BOARD_START_X + BOARD_SIZE_PIXELS * 0.9, MARGIN + TOP_BAR_HEIGHT//2)
+        black_center = (BOARD_START_X + BOARD_SIZE_PIXELS * 0.1, MARGIN + TOP_BAR_HEIGHT//2)
         pygame.draw.circle(SCREEN, (0, 0, 0), black_center, radius)
-
-        white_score = pygame.font.Font(None, 25).render(str(board.white_score()), True, "#FFFFFF")
-        SCREEN.blit(white_score, white_score.get_rect(center=(white_center[0]+radius+MARGIN,white_center[1])))
+        
+        white_center = (BOARD_START_X + BOARD_SIZE_PIXELS * 0.9, MARGIN + TOP_BAR_HEIGHT//2)
+        pygame.draw.circle(SCREEN, (255, 255, 255), white_center, radius)
 
         black_score = pygame.font.Font(None, 25).render(str(board.black_score()), True, "#000000")
-        SCREEN.blit(black_score, black_score.get_rect(center=(black_center[0]-radius-MARGIN,black_center[1])))
+        SCREEN.blit(black_score, black_score.get_rect(center=(black_center[0]+radius+MARGIN,black_center[1])))
+
+        white_score = pygame.font.Font(None, 25).render(str(board.white_score()), True, "#FFFFFF")
+        SCREEN.blit(white_score, white_score.get_rect(center=(white_center[0]-radius-MARGIN,white_center[1])))
         if board.is_done():
             winner = -1 if board.white_score() > board.black_score() else \
                 (0 if board.white_score() == board.black_score() else 1)

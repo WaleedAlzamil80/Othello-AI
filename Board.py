@@ -5,14 +5,8 @@ class Board:
         self.rules = rules
         self.board_size = 8
         self.board = np.zeros((self.board_size, self.board_size), dtype=int) # 1: player1, -1: player2,  0: Empty
-        self.board[3, 3] = self.board[4, 4] = 1
-        self.board[3, 4] = self.board[4, 3] = -1
-        self.current_players = 1
-        self.reset()
-
-    def reset(self):
-        self.board[3][3] = self.board[4][4] = 1
-        self.board[3][4] = self.board[4][3] = -1
+        self.board[3, 3] = self.board[4, 4] = -1
+        self.board[3, 4] = self.board[4, 3] = 1
         self.current_player = 1
 
     def get_valid_moves(self):
