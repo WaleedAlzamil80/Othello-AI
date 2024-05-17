@@ -102,7 +102,11 @@ def play():
             elif(first_player == PLAYER_TYPE_MINMAX):
                 Minmax.time_limit = 1 if first_player_diff == PLAYER_DIFFICULTY_EASY else \
                 2 if first_player_diff == PLAYER_DIFFICULTY_MEDIUM else 3
-                row, col = Minmax.get_best_move(board= board, depth=1000, alpha_beta = True, time_constrain = True) # modified
+                Minmax.leafs_visited = 0
+                # row, col = Minmax.get_best_move_time_constrained(board= board, depth=1000, alpha_beta = True, time_constrain = True) # modified
+                row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = False) # modified
+                print("leafs: ", Minmax.leafs_visited, "False")
+                print(row,"---", col)
                 board.make_move(row , col)
             elif(first_player == PLAYER_TYPE_MONTE_CARLO):
                 mcts = MCTs(rules, 2000)
@@ -121,7 +125,11 @@ def play():
             elif(second_player == PLAYER_TYPE_MINMAX):
                 Minmax.time_limit = 1 if second_player_diff == PLAYER_DIFFICULTY_EASY else \
                 2 if second_player_diff == PLAYER_DIFFICULTY_MEDIUM else 3
-                row, col = Minmax.get_best_move(board= board, depth=1000, alpha_beta = True, time_constrain = True)
+                Minmax.leafs_visited = 0
+                # row, col = Minmax.get_best_move_time_constrained(board= board, depth=1000, alpha_beta = True, time_constrain = True)
+                row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = False)
+                print("leafs: ", Minmax.leafs_visited, "False")
+                print(row,"---", col)
                 board.make_move(row , col)
             elif(second_player == PLAYER_TYPE_MONTE_CARLO):
                 mcts = MCTs(rules, 2000)

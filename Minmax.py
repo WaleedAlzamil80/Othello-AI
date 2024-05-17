@@ -2,14 +2,15 @@ import time
 import numpy as np
 import copy
 
-from Constants import PLAYER_DIFFICULTY_EASY, PLAYER_DIFFICULTY_HARD, PLAYER_DIFFICULTY_MEDIUM
+# from Constants import PLAYER_DIFFICULTY_EASY, PLAYER_DIFFICULTY_HARD, PLAYER_DIFFICULTY_MEDIUM
 
 class Minmax:
 
     start_time = 0
     time_limit = 5
+    leafs_visited = 0
 
-    def get_best_move(board, depth, alpha_beta = False, time_constrain = False):
+    def get_best_move_time_constrained(board):
         best_move = None
         max_eval = float('-inf') if board.current_player == 1 else float('inf')
         valid_moves = board.get_valid_moves()
@@ -26,20 +27,14 @@ class Minmax:
             for move in valid_moves:
                 if con: break
                 board.make_move(*move)
-                if alpha_beta:
-                    if time_constrain:
-                        eval, con = Minmax.minimax_alpha_beta_time_constrain(depth, float('-inf'), float('inf'), False, board)
-                        if con:
-                            max_eval = last_eval
-                            best_move = last_move
-                            board.board = copy.deepcopy(previous_board)
-                            board.current_player *= -1 
-                            depth -=1
-                            break
-                    else:
-                      eval = Minmax.minimax_alpha_beta(depth - 1, float('-inf'), float('inf'), False, board)
-                else:
-                    eval = Minmax.minimax(depth - 1, False)
+                eval, con = Minmax.minimax_alpha_beta_time_constrain(depth, float('-inf'), float('inf'), board.current_player, board)
+                if con:
+                    max_eval = last_eval
+                    best_move = last_move
+                    board.board = copy.deepcopy(previous_board)
+                    board.current_player *= -1 
+                    depth -=1
+                    break
                 board.board = copy.deepcopy(previous_board)
                 board.current_player *= -1 
                 moves.append((move, eval))
@@ -51,6 +46,31 @@ class Minmax:
         print("Depth is : ", depth)
         print(max_eval)
         return best_move
+    
+    def get_best_move(board, depth, alpha_beta = False):
+        best_move = None
+        best_eval = float('-inf') if board.current_player == 1 else float('inf')
+        valid_moves = board.get_valid_moves()
+        previous_board = copy.deepcopy(board.board)
+        moveee = []
+        for move in valid_moves:
+            board.make_move(*move)
+            if alpha_beta:
+                eval = Minmax.minimax_alpha_beta(depth - 1, float('-inf'), float('inf'), board.current_player == 1, board)
+            else:
+                eval = Minmax.minimax(depth - 1, board.current_player == 1, board)
+            board.board = copy.deepcopy(previous_board)
+            board.current_player *= -1 
+            if ((board.current_player == -1 and eval < best_eval) or\
+                (board.current_player == 1 and eval > best_eval)):
+                best_eval = eval
+                best_move = move
+            moveee.append((move, eval))
+        print("Depth is : ", depth)
+        print(moveee)
+        print(best_eval)
+        return best_move
+    
 
     def minimax_alpha_beta_time_constrain(depth, alpha, beta, maximizing_player, board):
         if (time.time() - Minmax.start_time) > Minmax.time_limit:
@@ -94,6 +114,7 @@ class Minmax:
     def minimax_alpha_beta(depth, alpha, beta, maximizing_player, board):
         valid_moves = board.get_valid_moves()
         if depth == 0 or len(valid_moves)==0:
+            Minmax.leafs_visited+=1
             return Minmax.evaluate_heuristic(board)
 
         if maximizing_player:
@@ -126,7 +147,8 @@ class Minmax:
     def minimax(depth, maximizing_player, board):
         valid_moves = board.get_valid_moves()
         if not depth or len(valid_moves)==0:
-            return Minmax.evaluate_heuristic()
+            Minmax.leafs_visited+=1
+            return Minmax.evaluate_heuristic(board)
 
         if maximizing_player:
             max_eval = float('-inf')
