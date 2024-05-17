@@ -11,40 +11,49 @@ class Minmax:
 
     def get_best_move(board, depth, alpha_beta = False, time_constrain = False):
         best_move = None
-        max_eval = float('-inf')
+        max_eval = float('-inf') if board.current_player == 1 else float('inf')
         valid_moves = board.get_valid_moves()
         previous_board = copy.deepcopy(board.board)
         Minmax.start_time = time.time()
-        for move in valid_moves:
-            print(move)
-            board.make_move(*move)
-            if alpha_beta:
-                if time_constrain:
-                  depth = 0
-                  while True:
-                    depth += 1
-                    x, con = Minmax.minimax_alpha_beta_time_constrain(depth, float('-inf'), float('inf'), False, board)
-                    if con:
-                        break
-                    eval = x
-                    print("Depth is : ", depth)
-                    print(eval)
+        depth = 0
+        con = False
+        while not con:
+            depth += 1
+            moves = []
+            last_eval = max_eval
+            last_move = best_move
+            max_eval = float('-inf') if board.current_player == 1 else float('inf')
+            for move in valid_moves:
+                if con: break
+                board.make_move(*move)
+                if alpha_beta:
+                    if time_constrain:
+                        eval, con = Minmax.minimax_alpha_beta_time_constrain(depth, float('-inf'), float('inf'), False, board)
+                        if con:
+                            max_eval = last_eval
+                            best_move = last_move
+                            board.board = copy.deepcopy(previous_board)
+                            board.current_player *= -1 
+                            depth -=1
+                            break
+                    else:
+                      eval = Minmax.minimax_alpha_beta(depth - 1, float('-inf'), float('inf'), False, board)
                 else:
-                  eval = Minmax.minimax_alpha_beta(depth - 1, float('-inf'), float('inf'), False, board)
-            else:
-                eval = Minmax.minimax(depth - 1, False)
-
-            board.board = copy.deepcopy(previous_board)
-
-            if eval > max_eval:
-                max_eval = eval
-                best_move = move
-
+                    eval = Minmax.minimax(depth - 1, False)
+                board.board = copy.deepcopy(previous_board)
+                board.current_player *= -1 
+                moves.append((move, eval))
+                if ((board.current_player == -1 and eval < max_eval) or\
+                    (board.current_player == 1 and eval > max_eval)):
+                    max_eval = eval
+                    best_move = move
+            print(moves)
+        print("Depth is : ", depth)
+        print(max_eval)
         return best_move
 
     def minimax_alpha_beta_time_constrain(depth, alpha, beta, maximizing_player, board):
         if (time.time() - Minmax.start_time) > Minmax.time_limit:
-            board.current_player *= -1
             return 0, True
 
         valid_moves = board.get_valid_moves()
@@ -57,15 +66,14 @@ class Minmax:
                 previous_board = copy.deepcopy(board.board)
                 board.make_move(*move)
                 eval, timed_out = Minmax.minimax_alpha_beta_time_constrain(depth - 1, alpha, beta, False, board)
-                board.board = previous_board
+                board.board = copy.deepcopy(previous_board)
+                board.current_player *= -1
                 if timed_out:
-                    board.current_player *= -1
                     return 0, True
                 max_eval = max(max_eval, eval)
                 alpha = max(alpha, eval)
                 if beta <= alpha:
                     break
-            board.current_player *= -1
             return max_eval, False
         else:
             min_eval = float('inf')
@@ -74,20 +82,18 @@ class Minmax:
                 board.make_move(*move)
                 eval, timed_out = Minmax.minimax_alpha_beta_time_constrain(depth - 1, alpha, beta, True, board)
                 board.board = copy.deepcopy(previous_board)
+                board.current_player *= -1
                 if timed_out:
-                    board.current_player *= -1
                     return 0, True
                 min_eval = min(min_eval, eval)
                 beta = min(beta, eval)
                 if beta <= alpha:
                     break
-            board.current_player *= -1
             return min_eval, False
 
     def minimax_alpha_beta(depth, alpha, beta, maximizing_player, board):
         valid_moves = board.get_valid_moves()
         if depth == 0 or len(valid_moves)==0:
-            board.current_player *= -1
             return Minmax.evaluate_heuristic(board)
 
         if maximizing_player:
@@ -96,12 +102,12 @@ class Minmax:
                 previous_board = copy.deepcopy(board.board)
                 board.make_move(*move)
                 eval = Minmax.minimax_alpha_beta(depth - 1, alpha, beta, False, board)
-                board.board = previous_board
+                board.board = copy.deepcopy(previous_board)
+                board.current_player *= -1
                 max_eval = max(max_eval, eval)
                 alpha = max(alpha, eval)
                 if beta <= alpha:
                     break
-            board.current_player *= -1
             return max_eval
         else:
             min_eval = float('inf')
@@ -110,17 +116,16 @@ class Minmax:
                 board.make_move(*move)
                 eval = Minmax.minimax_alpha_beta(depth - 1, alpha, beta, True, board)
                 board.board = copy.deepcopy(previous_board)
+                board.current_player *= -1
                 min_eval = min(min_eval, eval)
                 beta = min(beta, eval)
                 if beta <= alpha:
                     break
-            board.current_player *= -1
             return min_eval
 
     def minimax(depth, maximizing_player, board):
         valid_moves = board.get_valid_moves()
         if not depth or len(valid_moves)==0:
-            board.current_player *= -1
             return Minmax.evaluate_heuristic()
 
         if maximizing_player:
@@ -131,8 +136,7 @@ class Minmax:
                 eval = Minmax.minimax(depth - 1, False, board)
                 max_eval = max(max_eval, eval)
                 board.board = copy.deepcopy(previous_board)
-
-            board.current_player *= -1
+                board.current_player *= -1
             return max_eval
         else:
             min_eval = float('inf')
@@ -142,8 +146,7 @@ class Minmax:
                 eval = Minmax.minimax(depth - 1, True, board)
                 min_eval = min(min_eval, eval)
                 board.board = copy.deepcopy(previous_board)
-
-            board.current_player *= -1
+                board.current_player *= -1
             return min_eval
 
     def evaluate_heuristic(board):

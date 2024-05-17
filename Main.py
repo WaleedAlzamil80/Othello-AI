@@ -96,20 +96,20 @@ def play():
             elif state == 0:
                 return
         elif(board.current_player == 1):
-            print("first player" + first_player + second_player_diff)
+            print("first player" + first_player + first_player_diff)
             if(len(board.get_valid_moves()) == 0):
                 board.current_player *= -1
             elif(first_player == PLAYER_TYPE_MINMAX):
                 Minmax.time_limit = 1 if first_player_diff == PLAYER_DIFFICULTY_EASY else \
-                3 if first_player_diff == PLAYER_DIFFICULTY_MEDIUM else 5
+                2 if first_player_diff == PLAYER_DIFFICULTY_MEDIUM else 3
                 row, col = Minmax.get_best_move(board= board, depth=1000, alpha_beta = True, time_constrain = True) # modified
                 board.make_move(row , col)
             elif(first_player == PLAYER_TYPE_MONTE_CARLO):
                 mcts = MCTs(rules, 2000)
                 row, col = mcts.action(board.board,board.current_player)
                 board.make_move(row , col)
-            elif(first_player == PLAYER_TYPE_RL):
-                pass
+            # elif(first_player == PLAYER_TYPE_RL):
+            #     pass
             #     model = ResNet(4, 64)
             #     state_dict = torch.load("RL/SavedModels/model.pt", map_location = torch.device('cpu'))
             #     model.load_state_dict(state_dict)
@@ -120,7 +120,7 @@ def play():
                 board.current_player *= -1
             elif(second_player == PLAYER_TYPE_MINMAX):
                 Minmax.time_limit = 1 if second_player_diff == PLAYER_DIFFICULTY_EASY else \
-                3 if second_player_diff == PLAYER_DIFFICULTY_MEDIUM else 5
+                2 if second_player_diff == PLAYER_DIFFICULTY_MEDIUM else 3
                 row, col = Minmax.get_best_move(board= board, depth=1000, alpha_beta = True, time_constrain = True)
                 board.make_move(row , col)
             elif(second_player == PLAYER_TYPE_MONTE_CARLO):
@@ -192,16 +192,16 @@ def mode_menu(player_num):
                             text_input="Human", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
         MINMAX_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 380), 
                             text_input="MINMAX", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        CARLO_BUTTON = Button(image=pygame.image.load("assets/SmallRect.png"), pos=(200, 510), 
-                            text_input="Monte Carlo", font=get_font(40), base_color="#d7fcd4", hovering_color="White")
-        RF_BUTTON = Button(image=pygame.image.load("assets/SmallRect.png"), pos=(600, 510), 
-                            text_input="Reinforcement Learning", font=get_font(35), base_color="#d7fcd4", hovering_color="White")
+        CARLO_BUTTON = Button(image=pygame.image.load("assets/Rect.png"), pos=(400, 510), 
+                            text_input="Monte Carlo", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        # RF_BUTTON = Button(image=pygame.image.load("assets/SmallRect.png"), pos=(600, 510), 
+        #                     text_input="Reinforcement Learning", font=get_font(35), base_color="#d7fcd4", hovering_color="White")
                             
 
         SCREEN.blit(MENU_TEXT, MENU_RECT)
 
         #hovering
-        for button in [HUMAN_BUTTON, MINMAX_BUTTON, CARLO_BUTTON, RF_BUTTON]:
+        for button in [HUMAN_BUTTON, MINMAX_BUTTON, CARLO_BUTTON]:
             button.changeColor(MENU_MOUSE_POS)
             button.update(SCREEN)
         
@@ -238,21 +238,21 @@ def mode_menu(player_num):
                 if CARLO_BUTTON.checkForInput(MENU_MOUSE_POS):
                     if player_num == 1:
                         first_player = PLAYER_TYPE_MONTE_CARLO
-                        difficulty_menu(1)
-                        return
-                    else:
-                        second_player = PLAYER_TYPE_MONTE_CARLO
-                        difficulty_menu(2)
-                        return
-                if RF_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    if player_num == 1:
-                        first_player = PLAYER_TYPE_MONTE_CARLO
                         mode_menu(2)
                         return
                     else:
                         second_player = PLAYER_TYPE_MONTE_CARLO
                         play()
                         return
+                # if RF_BUTTON.checkForInput(MENU_MOUSE_POS):
+                #     if player_num == 1:
+                #         first_player = PLAYER_TYPE_MONTE_CARLO
+                #         mode_menu(2)
+                #         return
+                #     else:
+                #         second_player = PLAYER_TYPE_MONTE_CARLO
+                #         play()
+                #         return
 
         pygame.display.update()    
 
