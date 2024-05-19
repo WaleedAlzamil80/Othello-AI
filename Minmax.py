@@ -163,72 +163,60 @@ class Minmax:
             return 100 * (max_player_coins - min_player_coins) / (max_player_coins + min_player_coins + 1)
 
         def mobility():
-            if(board.current_player == 1):
-                max_player_mobility = len(board.get_valid_moves())
-                board.current_player *= -1
-                min_player_mobility = len(board.get_valid_moves())
-                board.current_player *= -1
-            elif(board.current_player == -1):
-                min_player_mobility = len(board.get_valid_moves())
-                board.current_player *= -1
-                max_player_mobility = len(board.get_valid_moves())
-                board.current_player *= -1
-            return 100 * (max_player_mobility - min_player_mobility) / (max_player_mobility + min_player_mobility + 1)
+            temp = board.current_player
+            board.current_player = 1
+            max_player_mobility = len(board.get_valid_moves())
+            board.current_player = -1
+            min_player_mobility = len(board.get_valid_moves())
+            board.current_player = temp
+            if max_player_mobility + min_player_mobility != 0:
+                return 100 * (max_player_mobility - min_player_mobility) / (max_player_mobility + min_player_mobility + 1)
+            return 0
 
-        def corners_captured():
-            maxCorners = 0
-            minCorners = 0
-            if board.board[0][0] == 1:
-                maxCorners += 1
-            elif board.board[0][0] == -1:
-                minCorners += 1
-            if board.board[0][7] == 1:
-                maxCorners += 1
-            elif board.board[0][7] == -1:
-                minCorners += 1
-            if board.board[7][0] == 1:
-                maxCorners += 1
-            elif board.board[7][0] == -1:
-                minCorners += 1
-            if board.board[7][7] == 1:
-                maxCorners += 1
-            elif board.board[7][7] == -1:
-                minCorners += 1
-            if maxCorners + minCorners != 0:
-                return 100.0 * (maxCorners - minCorners) / (maxCorners + minCorners)
-            else:
-                return 0
+        def corners_captured(board):
+            corners = [(0,0), (0,7), (7,0), (7,7)]
+            max_corners = sum([1 for x, y in corners if board[x, y] == 1])
+            min_corners = sum([1 for x, y in corners if board[x, y] == -1])
+            if max_corners + min_corners != 0:
+                return 100 * (max_corners - min_corners) / (max_corners + min_corners)
+            return 0
 
-        def stability_value(board, player):
-          weights = {'stable': 1, 'semi-stable': 0, 'unstable': -1}
-          stable_count = 0
-          semi_stable_count = 0
-          unstable_count = 0
+        def stability(board, player):
+            stable_discs = np.zeros_like(board)
+            directions = [(1, 0), (0, 1), (1, 1), (-1, 1)]
 
-          for row in range(board.board_size):
-              for col in range(board.board_size):
-                  if board.board[row, col] == player:
-                      if (row == 0 or row == board.board_size - 1) and (col == 0 or col == board.board_size - 1):
-                          stable_count += 1
-                      else:
-                          neighbors = [(row + dr, col + dc) for dr in range(-1, 2) for dc in range(-1, 2)
-                                      if 0 <= row + dr < board.board_size and 0 <= col + dc < board.board_size]
-                          neighbor_values = [board.board[r, c] for r, c in neighbors]
-                          if ' ' in neighbor_values and player in neighbor_values:
-                              semi_stable_count += 1
-                          else:
-                              unstable_count += 1
+            def mark_stable(x, y, player):
+                if stable_discs[x, y] != 0:
+                    return
+                for dx, dy in directions:
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < 8 and 0 <= ny < 8 and board[nx, ny] == player:
+                        mark_stable(nx, ny, player)
+                stable_discs[x, y] = player
 
-          return weights['stable'] * stable_count + weights['semi-stable'] * semi_stable_count + weights['unstable'] * unstable_count
+            for x in range(8):
+                if board[x, 0] == player:
+                    mark_stable(x, 0, player)
+                if board[x, 7] == player:
+                    mark_stable(x, 7, player)
+            for y in range(8):
+                if board[0, y] == player:
+                    mark_stable(0, y, player)
+                if board[7, y] == player:
+                    mark_stable(7, y, player)
 
-        def stability(board):
-            max_player_stability = stability_value(board, 1)
-            min_player_stability = stability_value(board, -1)
-            return 100 * (max_player_stability - min_player_stability) / (max_player_stability + min_player_stability + 1)
-        
+            player_stable = np.sum(stable_discs == player)
+            opponent_stable = np.sum(stable_discs == -player)
+            
+            if player_stable + opponent_stable != 0:
+                return 100 * (player_stable - opponent_stable) / (player_stable + opponent_stable)
+            return 0
+
+        return coin_parity() + mobility() + corners_captured(board.board)
+
         # if Minmax.difficulty == PLAYER_DIFFICULTY_EASY:
-        #     return coin_parity()
+        #     return mobility()
         # if Minmax.difficulty == PLAYER_DIFFICULTY_MEDIUM:
-        #     return coin_parity() + mobility() + 2*corners_captured() 
+        #     return coin_parity() + mobility()
         # if Minmax.difficulty == PLAYER_DIFFICULTY_HARD:
-        return coin_parity() + mobility() + corners_captured() 
+        
