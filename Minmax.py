@@ -14,7 +14,8 @@ class Minmax:
     def get_best_move_time_constrained(board):
         best_move = None
         Minmax.start_time = time.time()
-        depth = 0
+        depth = 1
+        _, best_move = Minmax.minimax_alpha_beta(depth, float('-inf'), float('inf'), board.current_player == 1, board)
         con = False
         while not con:
             depth += 1
@@ -225,9 +226,9 @@ class Minmax:
             min_player_stability = stability_value(board, -1)
             return 100 * (max_player_stability - min_player_stability) / (max_player_stability + min_player_stability + 1)
         
-        if Minmax.difficulty == PLAYER_DIFFICULTY_EASY:
-            return coin_parity()
-        if Minmax.difficulty == PLAYER_DIFFICULTY_MEDIUM:
-            return coin_parity() + stability(board)
-        if Minmax.difficulty == PLAYER_DIFFICULTY_HARD:
-            return coin_parity() + mobility() + corners_captured() + stability(board)
+        # if Minmax.difficulty == PLAYER_DIFFICULTY_EASY:
+        #     return coin_parity()
+        # if Minmax.difficulty == PLAYER_DIFFICULTY_MEDIUM:
+        #     return coin_parity() + mobility() + 2*corners_captured() 
+        # if Minmax.difficulty == PLAYER_DIFFICULTY_HARD:
+        return coin_parity() + mobility() + corners_captured() 
