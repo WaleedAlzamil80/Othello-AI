@@ -2,12 +2,13 @@ import time
 import numpy as np
 import copy
 
-# from Constants import PLAYER_DIFFICULTY_EASY, PLAYER_DIFFICULTY_HARD, PLAYER_DIFFICULTY_MEDIUM
+from Constants import PLAYER_DIFFICULTY_EASY, PLAYER_DIFFICULTY_HARD, PLAYER_DIFFICULTY_MEDIUM
 
 class Minmax:
 
     start_time = 0
     time_limit = 5
+    difficulty = PLAYER_DIFFICULTY_EASY
     leafs_visited = 0
 
     def get_best_move_time_constrained(board):
@@ -156,15 +157,21 @@ class Minmax:
 
     def evaluate_heuristic(board):
         def coin_parity():
-            max_player_coins = np.sum(board.board == board.current_player)
-            min_player_coins = np.sum(board.board == -board.current_player)
+            max_player_coins = board.black_score()
+            min_player_coins = board.white_score()
             return 100 * (max_player_coins - min_player_coins) / (max_player_coins + min_player_coins + 1)
 
         def mobility():
-            max_player_mobility = len(board.get_valid_moves())
-            board.current_player *= -1
-            min_player_mobility = len(board.get_valid_moves())
-            board.current_player *= -1
+            if(board.current_player == 1):
+                max_player_mobility = len(board.get_valid_moves())
+                board.current_player *= -1
+                min_player_mobility = len(board.get_valid_moves())
+                board.current_player *= -1
+            elif(board.current_player == -1):
+                min_player_mobility = len(board.get_valid_moves())
+                board.current_player *= -1
+                max_player_mobility = len(board.get_valid_moves())
+                board.current_player *= -1
             return 100 * (max_player_mobility - min_player_mobility) / (max_player_mobility + min_player_mobility + 1)
 
         def corners_captured():
@@ -214,13 +221,13 @@ class Minmax:
           return weights['stable'] * stable_count + weights['semi-stable'] * semi_stable_count + weights['unstable'] * unstable_count
 
         def stability(board):
-            max_player_stability = stability_value(board, board.current_player)
-            min_player_stability = stability_value(board, -board.current_player)
+            max_player_stability = stability_value(board, 1)
+            min_player_stability = stability_value(board, -1)
             return 100 * (max_player_stability - min_player_stability) / (max_player_stability + min_player_stability + 1)
         
-        # if diff == PLAYER_DIFFICULTY_EASY:
-        #     return coin_parity() + mobility()
-        # if diff == PLAYER_DIFFICULTY_MEDIUM:
-        #     return coin_parity() + mobility() + corners_captured()
-        # if diff == PLAYER_DIFFICULTY_HARD:
-        return coin_parity() + mobility() + corners_captured() + stability(board)
+        if Minmax.difficulty == PLAYER_DIFFICULTY_EASY:
+            return coin_parity()
+        if Minmax.difficulty == PLAYER_DIFFICULTY_MEDIUM:
+            return coin_parity() + stability(board)
+        if Minmax.difficulty == PLAYER_DIFFICULTY_HARD:
+            return coin_parity() + mobility() + corners_captured() + stability(board)

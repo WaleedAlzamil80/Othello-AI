@@ -114,8 +114,9 @@ def play():
             if(len(board.get_valid_moves()) == 0):
                 board.current_player *= -1
             elif(first_player == PLAYER_TYPE_MINMAX):
-                Minmax.time_limit = 0.5 if first_player_diff == PLAYER_DIFFICULTY_EASY else \
-                1 if first_player_diff == PLAYER_DIFFICULTY_MEDIUM else 2
+                Minmax.time_limit = 0.2 if first_player_diff == PLAYER_DIFFICULTY_EASY else \
+                0.5 if first_player_diff == PLAYER_DIFFICULTY_MEDIUM else 1.5
+                Minmax.difficulty = second_player_diff
                 # Minmax.leafs_visited = 0
                 row, col = Minmax.get_best_move_time_constrained(board= board) # modified
                 # row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = False) # modified
@@ -141,8 +142,9 @@ def play():
             if(len(board.get_valid_moves()) == 0):
                 board.current_player *= -1
             elif(second_player == PLAYER_TYPE_MINMAX):
-                Minmax.time_limit = 0.5 if second_player_diff == PLAYER_DIFFICULTY_EASY else \
-                1 if second_player_diff == PLAYER_DIFFICULTY_MEDIUM else 2
+                Minmax.time_limit = 0.2 if second_player_diff == PLAYER_DIFFICULTY_EASY else \
+                0.5 if second_player_diff == PLAYER_DIFFICULTY_MEDIUM else 1.5
+                Minmax.difficulty = second_player_diff
                 # Minmax.leafs_visited = 0
                 row, col = Minmax.get_best_move_time_constrained(board= board)
                 # row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = False)
