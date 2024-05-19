@@ -19,7 +19,7 @@ You have the options to:
 - Restart the game
 - Go back to the Main Menu
 
-![draw.png](./assests/drawpng.png)
+![drawpng.png](./assests/drawpng.png)
 ![white.png](./assests/white.png)
 
 
