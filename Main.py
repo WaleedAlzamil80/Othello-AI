@@ -82,7 +82,7 @@ def play():
             button.update(SCREEN)
 
         pygame.display.flip()
-
+        need_update = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -102,63 +102,64 @@ def play():
                 elif ((board.current_player == 1 and first_player == PLAYER_TYPE_HUMAN)
                      or (board.current_player == -1 and second_player == PLAYER_TYPE_HUMAN)):
                     GameController.click_action(board)
-        
-        if board.is_done(): 
-            state = game_end_screen(board) 
-            if state == 1: 
-                board = Board(rules)
-            elif state == 0:
-                return
-        elif(board.current_player == 1):
-            print("first player" + first_player + first_player_diff)
-            if(len(board.get_valid_moves()) == 0):
-                board.current_player *= -1
-            elif(first_player == PLAYER_TYPE_MINMAX):
-                Minmax.time_limit = 0.2 if first_player_diff == PLAYER_DIFFICULTY_EASY else \
-                0.5 if first_player_diff == PLAYER_DIFFICULTY_MEDIUM else 1.5
-                Minmax.difficulty = second_player_diff
-                # Minmax.leafs_visited = 0
-                row, col = Minmax.get_best_move_time_constrained(board= board) # modified
-                # row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = False) # modified
-                # print("leafs: ", Minmax.leafs_visited)
-                print(row,"---", col)
-                pygame.mixer.music.load('assets/play-sound.mp3')
-                pygame.mixer.music.play(1)
-                board.make_move(row , col)
-            elif(first_player == PLAYER_TYPE_MONTE_CARLO):
-                mcts = MCTs(rules, 2000)
-                row, col = mcts.action(board.board,board.current_player)
-                pygame.mixer.music.load('assets/play-sound.mp3')
-                pygame.mixer.music.play(1)
-                board.make_move(row , col)
-            # elif(first_player == PLAYER_TYPE_RL):
-            #     pass
-            #     model = ResNet(4, 64)
-            #     state_dict = torch.load("RL/SavedModels/model.pt", map_location = torch.device('cpu'))
-            #     model.load_state_dict(state_dict)
-            #     rl = MCTs_RL(rules, 2000,model, "cpu", False) 
-        elif (board.current_player == -1):
-            print("second_player" + second_player + second_player_diff)
-            if(len(board.get_valid_moves()) == 0):
-                board.current_player *= -1
-            elif(second_player == PLAYER_TYPE_MINMAX):
-                Minmax.time_limit = 0.2 if second_player_diff == PLAYER_DIFFICULTY_EASY else \
-                0.5 if second_player_diff == PLAYER_DIFFICULTY_MEDIUM else 1.5
-                Minmax.difficulty = second_player_diff
-                # Minmax.leafs_visited = 0
-                row, col = Minmax.get_best_move_time_constrained(board= board)
-                # row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = False)
-                # print("leafs: ", Minmax.leafs_visited)
-                print(row,"---", col)
-                pygame.mixer.music.load('assets/play-sound.mp3')
-                pygame.mixer.music.play(1)
-                board.make_move(row , col)
-            elif(second_player == PLAYER_TYPE_MONTE_CARLO):
-                mcts = MCTs(rules, 2000)
-                row, col = mcts.action(board.board,board.current_player)
-                pygame.mixer.music.load('assets/play-sound.mp3')
-                pygame.mixer.music.play(1)
-                board.make_move(row , col)
+                    need_update = True
+        if not need_update:    
+            if board.is_done(): 
+                state = game_end_screen(board) 
+                if state == 1: 
+                    board = Board(rules)
+                elif state == 0:
+                    return
+            elif(board.current_player == 1):
+                print("first player" + first_player + first_player_diff)
+                if(len(board.get_valid_moves()) == 0):
+                    board.current_player *= -1
+                elif(first_player == PLAYER_TYPE_MINMAX):
+                    Minmax.time_limit = 0.2 if first_player_diff == PLAYER_DIFFICULTY_EASY else \
+                    0.5 if first_player_diff == PLAYER_DIFFICULTY_MEDIUM else 1.5
+                    Minmax.difficulty = first_player_diff
+                    # Minmax.leafs_visited = 0
+                    row, col = Minmax.get_best_move_time_constrained(board= board) # modified
+                    # row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = False) # modified
+                    # print("leafs: ", Minmax.leafs_visited)
+                    print(row,"---", col)
+                    pygame.mixer.music.load('assets/play-sound.mp3')
+                    pygame.mixer.music.play(1)
+                    board.make_move(row , col)
+                elif(first_player == PLAYER_TYPE_MONTE_CARLO):
+                    mcts = MCTs(rules, 2000)
+                    row, col = mcts.action(board.board,board.current_player)
+                    pygame.mixer.music.load('assets/play-sound.mp3')
+                    pygame.mixer.music.play(1)
+                    board.make_move(row , col)
+                # elif(first_player == PLAYER_TYPE_RL):
+                #     pass
+                #     model = ResNet(4, 64)
+                #     state_dict = torch.load("RL/SavedModels/model.pt", map_location = torch.device('cpu'))
+                #     model.load_state_dict(state_dict)
+                #     rl = MCTs_RL(rules, 2000,model, "cpu", False) 
+            elif (board.current_player == -1):
+                print("second_player" + second_player + second_player_diff)
+                if(len(board.get_valid_moves()) == 0):
+                    board.current_player *= -1
+                elif(second_player == PLAYER_TYPE_MINMAX):
+                    Minmax.time_limit = 0.2 if second_player_diff == PLAYER_DIFFICULTY_EASY else \
+                    0.5 if second_player_diff == PLAYER_DIFFICULTY_MEDIUM else 1.5
+                    Minmax.difficulty = second_player_diff
+                    # Minmax.leafs_visited = 0
+                    row, col = Minmax.get_best_move_time_constrained(board= board)
+                    # row, col = Minmax.get_best_move(board= board, depth=3, alpha_beta = False)
+                    # print("leafs: ", Minmax.leafs_visited)
+                    print(row,"---", col)
+                    pygame.mixer.music.load('assets/play-sound.mp3')
+                    pygame.mixer.music.play(1)
+                    board.make_move(row , col)
+                elif(second_player == PLAYER_TYPE_MONTE_CARLO):
+                    mcts = MCTs(rules, 2000)
+                    row, col = mcts.action(board.board,board.current_player)
+                    pygame.mixer.music.load('assets/play-sound.mp3')
+                    pygame.mixer.music.play(1)
+                    board.make_move(row , col)
 
 def get_font(size):
     return pygame.font.Font(None, size)
