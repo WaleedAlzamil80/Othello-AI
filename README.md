@@ -1,5 +1,27 @@
 # Othello AI
-This repository implements various artificial intelligence (AI) algorithms for the classic game of Othello.
+Welcome to the Othello AI project! This project implements an AI to play the game of Othello (also known as Reversi) with a graphical user interface (GUI). The AI supports various difficulty levels and different algorithms including MinMax and Monte Carlo Tree Search (MCTS).
+
+## GUI
+
+### Screens
+
+1. The main screen is where you decide to play or end exit the game.
+![Main_Menu.png](./assets/Main_Menu.png)
+2. Players screen is where each player select the algorithm
+![player1.png](./assets/algo1.png)
+![player2.png](./assets/algo2.png)
+3. Difficulty where we specify the difficulty of the algorithm
+![difficulty.png](./assets/diff.png)
+4. Game screen is where the game is played and the Othello board is displayed. The board is an 8x8 grid where the game pieces are placed.
+You have the options to:
+- Pause the game
+- Resume the game
+- Restart the game
+- Go back to the Main Menu
+
+![draw.png](./assests/drawpng.png)
+![white.png](./assests/white.png)
+
 
 ## Main Algorithms:
 1. **MinMax Algorithm**:
