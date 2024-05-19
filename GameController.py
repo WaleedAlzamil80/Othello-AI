@@ -87,4 +87,7 @@ class GameController:
         if pos != None:
             row, col = pos
             print((row , col))
-            board.make_move(row , col)
+            if (row , col) in board.get_valid_moves():
+                pygame.mixer.music.load('assets/play-sound.mp3')
+                pygame.mixer.music.play(1)
+                board.make_move(row , col)
