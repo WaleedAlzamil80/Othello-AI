@@ -19,8 +19,8 @@ You have the options to:
 - Restart the game
 - Go back to the Main Menu
 
-![drawpng.png](./assests/drawpng.png)
-![white.png](./assests/white.png)
+![drawpng.png](./assets/drawpng.png)
+![white.png](./assets/white.png)
 
 
 ## Main Algorithms:

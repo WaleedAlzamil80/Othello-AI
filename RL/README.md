@@ -1,1 +1,1 @@
-![Processing](assets/RL_time.png)
+![Processing](/assets/RL_time.png)
